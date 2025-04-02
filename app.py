@@ -8,7 +8,7 @@ BOT_TOKEN = '7517508116:AAHydfYGo0-6pYS3rwx0GE2__ELVhi9pwnE'
 def start(update: Update, context: CallbackContext) -> None:
     user = update.message.from_user
     # Отправка сообщения с кнопкой, которая открывает WebApp
-    keyboard = [[InlineKeyboardButton("Запустить WebApp", url="https://storied-sopapillas-554ad8.netlify")]]
+    keyboard = [[InlineKeyboardButton("Запустить WebApp", url="https://awdawd-gray.vercel.app/")]]
     reply_markup = InlineKeyboardMarkup(keyboard)
     
     update.message.reply_text(
