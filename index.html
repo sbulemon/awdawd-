@@ -373,6 +373,11 @@
             color: rgba(224, 224, 224, 0.3);
             z-index: 100;
         }
+
+        /* Бейдж для кодеров */
+        .badge-coder {
+            background: #4285f4 !important;
+        }
     </style>
 </head>
 <body class="theme-hacker">
@@ -384,7 +389,7 @@
 
         <div class="theme-buttons">
             <button class="theme-btn active" onclick="setTheme('theme-hacker')">
-                <i class="fas fa-code"></i> Зеленая
+                <i class="fas fa-code"></i> зеленая
             </button>
             <button class="theme-btn" onclick="setTheme('theme-red')">
                 <i class="fas fa-fire"></i> Красная
@@ -432,6 +437,56 @@
                         <p class="card-desc">Создатель проекта "Правда о км", известен интервью</p>
                     </div>
                 </div>
+                
+                <div class="card" onclick="openModal('@svater')">
+                    <div class="card-badge">ТОП</div>
+                    <img src="https://i.imgur.com/Q7gPorf.jpg" alt="@svater" class="card-img">
+                    <div class="card-content">
+                        <h3 class="card-title">@svater</h3>
+                        <p class="card-desc">Владелец проекта #снялцепи, лучший ворк по миллиру</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section fade-in">
+            <h2 class="section-title">Кодеры</h2>
+            <div class="grid">
+                <div class="card" onclick="openModal('@RigOlit')">
+                    <div class="card-badge badge-coder">DEV</div>
+                    <img src="https://i.imgur.com/JkwOcML.jpg" alt="@RigOlit" class="card-img">
+                    <div class="card-content">
+                        <h3 class="card-title">@RigOlit</h3>
+                        <p class="card-desc">Python, JS, C#, HTML разработчик, реверс-инжиниринг и пентест</p>
+                    </div>
+                </div>
+                
+                <div class="card" onclick="openModal('@vkmef')">
+                    <div class="card-badge badge-coder">DEV</div>
+                    <img src="https://i.imgur.com/M94dBCu.jpg" alt="@vkmef" class="card-img">
+                    <div class="card-content">
+                        <h3 class="card-title">@vkmef</h3>
+                        <p class="card-desc">Разработчик TOKLOM, TOKLOM FREE, HIMARS, HIMARS FREE</p>
+                    </div>
+                </div>
+                
+                <div class="card" onclick="openModal('@DatabaseAttack')">
+                    <div class="card-badge badge-coder">DEV</div>
+                    <img src="https://i.imgur.com/lLAr1sa.jpg" alt="@DatabaseAttack" class="card-img">
+                    <div class="card-content">
+                        <h3 class="card-title">@DatabaseAttack</h3>
+                        <p class="card-desc">Wolfram, основатель HexorSoftware и DecryptageTeam</p>
+                    </div>
+                </div>
+                
+                <div class="card" onclick="openModal('@skypesender')">
+                    <div class="card-badge badge-coder">DEV</div>
+                    <img src="https://i.imgur.com/KVfhwB5.jpg" alt="@skypesender" class="card-img">
+                    <div class="card-content">
+                        <h3 class="card-title">@skypesender</h3>
+                        <p class="card-desc">Hidden, основатель Mi6, Eclipse и других проектов</p>
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -443,6 +498,14 @@
                     <div class="card-content">
                         <h3 class="card-title">@sbulemon</h3>
                         <p class="card-desc">OSINT специалист, разработчик @lemon_tool</p>
+                    </div>
+                </div>
+                
+                <div class="card" onclick="openModal('@disonov')">
+                    <img src="https://i.imgur.com/KZ7UJGr.jpg" alt="@disonov" class="card-img">
+                    <div class="card-content">
+                        <h3 class="card-title">@disonov</h3>
+                        <p class="card-desc">Николай Дисонов, вернулся в 2024 с новой медийностью</p>
                     </div>
                 </div>
             </div>
@@ -488,7 +551,7 @@
         </div>
     </div>
 
-    <div class="watermark">Медийки Telegram Комьюнити ©2025</div>
+    <div class="watermark">Медийки Telegram км 2025</div>
 
     <script>
         // Данные о персонах
@@ -513,10 +576,40 @@
                 channel: 'https://t.me/spbmaniac',
                 dm: 'https://t.me/spbmaniac'
             },
+            '@svater': {
+                info: 'Человек появился в комьюнити (в 2021 его выебали на мирняке, после в 2023 он влетел с ноги в ебаное комьюнити). Владелец проекта #снялцепи, считается лучшим в ворке по миллиону. Известен своей резкой манерой общения и нестандартным подходом к ведению дел.',
+                channel: 'https://t.me/svater',
+                dm: 'https://t.me/svater'
+            },
+            '@RigOlit': {
+                info: 'Гриша - разработчик, специализируется на Python, JavaScript, C# и HTML. Активно изучает реверсивную инженерию и пентест. Участвовал в разработке таких проектов как MAPLE, RIGOLIT, HIMARS, LEMON TOOL, частично TOKLOM. Работал с кряками для TOOXAN, warden, akuma, занимался анализом различных инструментов.',
+                channel: 'https://t.me/RigOlit',
+                dm: 'https://t.me/RigOlit'
+            },
+            '@vkmef': {
+                info: 'Мефосквит - талантливый разработчик, создатель TOKLOM, TOKLOM FREE, HIMARS, HIMARS FREE и многих других проектов. Известен своими техническими решениями и вкладом в развитие инструментов для сообщества.',
+                channel: 'https://t.me/vkmef',
+                dm: 'https://t.me/vkmef'
+            },
+            '@DatabaseAttack': {
+                info: 'Wolfram - кодер и разработчик. Основатель проектов "HexorSoftware" и "DecryptageTeam!". Известен своими техническими навыками и вкладом в развитие инструментов для сообщества. Специализируется на создании программного обеспечения для различных задач.',
+                channel: 'https://t.me/DatabaseAttack',
+                dm: 'https://t.me/DatabaseAttack'
+            },
+            '@skypesender': {
+                info: 'Hidden - таинственный кодер, основатель нескольких известных проектов включая "Mi6", "Eclipse", "Eclipse Black" и "HIDDEN PROJECT". Специализируется на создании сложных решений с акцентом на безопасность и анонимность. Известен своим нестандартным подходом к разработке и редкими, но значимыми появлениями в сообществе.',
+                channel: 'https://t.me/skypesender',
+                dm: 'https://t.me/skypesender'
+            },
             '@sbulemon': {
                 info: 'Появился в комьюнити в 2022-2023 году. Специализируется на OSINT (разведка на основе открытых источников) и программировании. Автор инструмента @lemon_tool, который получил признание в сообществе. Известен техническим подходом к решению задач.',
                 channel: 'https://t.me/sbulemon',
                 dm: 'https://t.me/sbulemon'
+            },
+            '@disonov': {
+                info: 'Николай Дисонов узнал о комьюнити в 2021 году, заинтересовался темой и разобрался в ней ближе к 2022 году, когда и пришел в комьюнити. На тот момент состоял в довольно популярном клане с собственным каналом и заказами. После сноса прошлой личности ушел в 2023 году, но вернулся в 2024 с решимостью снова заявить о себе. Добился хорошей медийности благодаря активной позиции и участию в ключевых событиях сообщества.',
+                channel: 'https://t.me/disonov',
+                dm: 'https://t.me/disonov'
             },
             'scammer1': {
                 info: 'Известный участник сообщества, замешанный в нескольких мошеннических схемах. Использует различные методы социальной инженерии для обмана пользователей. Был неоднократно разоблачен, но продолжает появляться под новыми аккаунтами. Рекомендуется проявлять осторожность при взаимодействии.',
