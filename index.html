@@ -3,429 +3,575 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Медийные личности</title>
+    <title>Медийные личности Telegram</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 20px;
-            box-sizing: border-box;
-            overflow-x: hidden;
-            background: linear-gradient(45deg, #0f1419, #1c2526);
-            animation: gradientBG 10s ease infinite;
+        :root {
+            --primary: #00ff99;
+            --secondary: #0f1419;
+            --text: #e0e0e0;
+            --card-bg: rgba(28, 37, 38, 0.8);
+            --modal-bg: rgba(28, 37, 38, 0.95);
         }
 
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: var(--secondary);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.6;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 25% 25%, rgba(0, 255, 153, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(0, 255, 153, 0.1) 0%, transparent 50%);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
         }
 
         .header {
-            margin: 20px 0;
-            font-size: 32px;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin: 0;
+            background: linear-gradient(90deg, var(--primary), #00cc88);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .header p {
+            color: rgba(224, 224, 224, 0.7);
+            max-width: 600px;
+            margin: 1rem auto 0;
         }
 
         .theme-buttons {
-            margin: 20px 0;
             display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
             justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
         }
-        .theme-buttons button {
-            padding: 10px 20px;
+
+        .theme-btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
             border: none;
-            border-radius: 25px;
-            cursor: pointer;
-            font-size: 14px;
             font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text);
+            backdrop-filter: blur(5px);
         }
-        .theme-buttons button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+
+        .theme-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .theme-btn.active {
+            background: var(--primary);
+            color: var(--secondary);
         }
 
         .section {
-            width: 100%;
-            max-width: 1200px;
-            margin: 40px 0;
+            margin-bottom: 3rem;
         }
-        .section h3 {
-            font-size: 24px;
-            margin-bottom: 20px;
-            text-align: center;
-            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            display: inline-block;
+            color: var(--primary);
         }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background: var(--primary);
+            border-radius: 3px;
+        }
+
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
         }
 
         .card {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
+            background: var(--card-bg);
+            border-radius: 16px;
             overflow: hidden;
-            transition: all 0.3s ease;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.05);
             cursor: pointer;
-            backdrop-filter: blur(5px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        .card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3), 0 0 20px rgba(255, 255, 255, 0.2);
-        }
-        .card img {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-            transition: transform 0.3s ease;
-        }
-        .card:hover img {
-            transform: scale(1.05);
-        }
-        .card-content {
-            padding: 20px;
-            text-align: center;
-        }
-        .card-content h2 {
-            margin: 0;
-            font-size: 20px;
-            font-weight: 600;
-            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+            position: relative;
         }
 
-        /* Модальное окно */
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+            border-color: rgba(0, 255, 153, 0.3);
+        }
+
+        .card-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: var(--primary);
+            color: var(--secondary);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            z-index: 1;
+        }
+
+        .card-img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .card:hover .card-img {
+            transform: scale(1.05);
+        }
+
+        .card-content {
+            padding: 1.5rem;
+        }
+
+        .card-title {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-desc {
+            font-size: 0.875rem;
+            color: rgba(224, 224, 224, 0.7);
+            margin: 0;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
         .modal {
-            display: none;
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.8);
+            display: flex;
             justify-content: center;
             align-items: center;
             z-index: 1000;
-            animation: fadeIn 0.3s ease;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
         }
+
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: var(--modal-bg);
+            border-radius: 16px;
+            width: 90%;
+            max-width: 500px;
+            padding: 2rem;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(0, 255, 153, 0.2);
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+        }
+
+        .modal.active .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: rgba(224, 224, 224, 0.7);
+            transition: color 0.2s ease;
+        }
+
+        .modal-close:hover {
+            color: var(--primary);
+        }
+
+        .modal-title {
+            margin-top: 0;
+            color: var(--primary);
+            font-size: 1.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .modal-text {
+            margin-bottom: 2rem;
+            line-height: 1.7;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .modal-btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .modal-btn-primary {
+            background: var(--primary);
+            color: var(--secondary);
+        }
+
+        .modal-btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text);
+        }
+
+        .modal-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Темы */
+        .theme-hacker {
+            --primary: #00ff99;
+            --secondary: #0f1419;
+            --text: #e0e0e0;
+            --card-bg: rgba(28, 37, 38, 0.8);
+            --modal-bg: rgba(28, 37, 38, 0.95);
+        }
+
+        .theme-red {
+            --primary: #ff4d4d;
+            --secondary: #2b0a0a;
+            --text: #f0f0f0;
+            --card-bg: rgba(61, 22, 22, 0.8);
+            --modal-bg: rgba(61, 22, 22, 0.95);
+        }
+
+        .theme-purple {
+            --primary: #cc66ff;
+            --secondary: #1f0a2b;
+            --text: #f0e0ff;
+            --card-bg: rgba(43, 20, 61, 0.8);
+            --modal-bg: rgba(43, 20, 61, 0.95);
+        }
+
+        /* Анимации */
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
         }
-        .modal-content {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 20px;
-            border-radius: 15px;
-            max-width: 500px;
-            width: 90%;
-            text-align: center;
-            position: relative;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-        }
-        .modal-content h2 {
-            font-size: 24px;
-            margin: 0 0 10px;
-        }
-        .modal-content p {
-            font-size: 16px;
-            margin: 10px 0;
-        }
-        .modal-buttons {
-            margin-top: 20px;
-        }
-        .modal-buttons a {
-            display: inline-block;
-            padding: 10px 20px;
-            margin: 0 10px;
-            border-radius: 20px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        }
-        .modal-buttons a:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-        }
-        .close {
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            font-size: 24px;
-            cursor: pointer;
-            transition: color 0.3s ease;
-        }
-        .close:hover {
-            color: #fff;
+
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
         }
 
-        /* Хакерская тема */
-        .hacker-theme {
-            background: linear-gradient(45deg, #0f1419, #00ff99);
-            background-size: 200% 200%;
-            color: #00ff99;
-        }
-        .hacker-theme .header, .hacker-theme h3 {
-            color: #00ff99;
-        }
-        .hacker-theme .card {
-            background: rgba(28, 37, 38, 0.8);
-            border: 1px solid #00ff99;
-        }
-        .hacker-theme button, .hacker-theme .modal-buttons a {
-            background: #00ff99;
-            color: #0f1419;
-        }
-        .hacker-theme .modal-content {
-            background: rgba(28, 37, 38, 0.8);
-            color: #00ff99;
-            border: 1px solid #00ff99;
-        }
-
-        /* Красная тема */
-        .red-theme {
-            background: linear-gradient(45deg, #2b0a0a, #ff4d4d);
-            background-size: 200% 200%;
-            color: #ff4d4d;
-        }
-        .red-theme .header, .red-theme h3 {
-            color: #ff4d4d;
-        }
-        .red-theme .card {
-            background: rgba(61, 22, 22, 0.8);
-            border: 1px solid #ff4d4d;
-        }
-        .red-theme button, .red-theme .modal-buttons a {
-            background: #ff4d4d;
-            color: #fff;
-        }
-        .red-theme .modal-content {
-            background: rgba(61, 22, 22, 0.8);
-            color: #ff4d4d;
-            border: 1px solid #ff4d4d;
-        }
-
-        /* Фиолетовая тема */
-        .purple-theme {
-            background: linear-gradient(45deg, #1f0a2b, #cc66ff);
-            background-size: 200% 200%;
-            color: #cc66ff;
-        }
-        .purple-theme .header, .purple-theme h3 {
-            color: #cc66ff;
-        }
-        .purple-theme .card {
-            background: rgba(43, 20, 61, 0.8);
-            border: 1px solid #cc66ff;
-        }
-        .purple-theme button, .purple-theme .modal-buttons a {
-            background: #cc66ff;
-            color: #fff;
-        }
-        .purple-theme .modal-content {
-            background: rgba(43, 20, 61, 0.8);
-            color: #cc66ff;
-            border: 1px solid #cc66ff;
-        }
-
-        /* Адаптивность для телефонов */
-        @media (max-width: 600px) {
-            .header {
-                font-size: 24px;
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1.5rem;
             }
-            .theme-buttons button {
-                padding: 8px 16px;
-                font-size: 12px;
+            
+            .header h1 {
+                font-size: 2rem;
             }
-            .section h3 {
-                font-size: 20px;
+            
+            .grid {
+                grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
             }
+            
+            .modal-content {
+                padding: 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.75rem;
+            }
+            
+            .theme-buttons {
+                gap: 0.5rem;
+            }
+            
+            .theme-btn {
+                padding: 0.5rem 1rem;
+                font-size: 0.875rem;
+            }
+            
             .grid {
                 grid-template-columns: 1fr;
             }
-            .card {
+            
+            .modal-actions {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+            
+            .modal-btn {
                 width: 100%;
-                max-width: 320px;
+                justify-content: center;
             }
-            .card img {
-                height: 180px;
-            }
-            .card-content h2 {
-                font-size: 18px;
-            }
-            .modal-content {
-                width: 85%;
-            }
+        }
+
+        /* Дополнительные элементы */
+        .watermark {
+            position: fixed;
+            bottom: 1rem;
+            right: 1rem;
+            font-size: 0.75rem;
+            color: rgba(224, 224, 224, 0.3);
+            z-index: 100;
         }
     </style>
 </head>
-<body class="hacker-theme">
-    <div class="header">Медийки TELEGRAM</div>
-    <div class="theme-buttons">
-        <button onclick="setTheme('hacker-theme')">зеленый</button>
-        <button onclick="setTheme('red-theme')">Красная</button>
-        <button onclick="setTheme('purple-theme')">Фиолетовая</button>
-    </div>
+<body class="theme-hacker">
+    <div class="container">
+        <header class="header fade-in">
+            <h1>Медийные личности Telegram</h1>
+            <p>Справочник известных личностей в комьюнити Telegram с информацией о их деятельности и проектах</p>
+        </header>
 
-    <div class="section">
-        <h3>Медийки</h3>
-        <div class="grid">
-            <div class="card" onclick="openModal('@usermefi')">
-                <img src="https://i.imgur.com/GAkhf93.jpg" alt="Аватар @usermefi">
-                <div class="card-content">
-                    <h2>@usermefi</h2>
-                </div>
-            </div>
-            <div class="card" onclick="openModal('@chapaevv')">
-                <img src="https://i.ytimg.com/vi/HXsM2RidYEk/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLAEzg68rrZczF1a6i8nbhxDz_SjlA" alt="Аватар @chapaevv">
-                <div class="card-content">
-                    <h2>@chapaevv</h2>
-                </div>
-            </div>
-            <div class="card" onclick="openModal('@oexec')">
-                <img src="https://i.imgur.com/rF7MCo9.jpg" alt="Аватар @oexec">
-                <div class="card-content">
-                    <h2>@oexec</h2>
-                </div>
-            </div>
-            <div class="card" onclick="openModal('@spbmaniac')">
-                <img src="https://i.imgur.com/uAYfujR.jpg" alt="Аватар @spbmaniac">
-                <div class="card-content">
-                    <h2>@spbmaniac</h2>
-                </div>
-            </div>
+        <div class="theme-buttons">
+            <button class="theme-btn active" onclick="setTheme('theme-hacker')">
+                <i class="fas fa-code"></i> Зеленая
+            </button>
+            <button class="theme-btn" onclick="setTheme('theme-red')">
+                <i class="fas fa-fire"></i> Красная
+            </button>
+            <button class="theme-btn" onclick="setTheme('theme-purple')">
+                <i class="fas fa-magic"></i> Фиолетовая
+            </button>
         </div>
-    </div>
 
-    <div class="section">
-        <h3>Средний фейм</h3>
-        <div class="grid">
-            <div class="card" onclick="openModal('@sbulemon')">
-                <img src="https://i.imgur.com/S6Lgvze.jpg" alt="Аватар @sbulemon">
-                <div class="card-content">
-                    <h2>@sbulemon</h2>
+        <section class="section fade-in">
+            <h2 class="section-title">Топ медийки</h2>
+            <div class="grid">
+                <div class="card" onclick="openModal('@usermefi')">
+                    <div class="card-badge">ТОП</div>
+                    <img src="https://i.imgur.com/GAkhf93.jpg" alt="@usermefi" class="card-img">
+                    <div class="card-content">
+                        <h3 class="card-title">@usermefi</h3>
+                        <p class="card-desc">Основатель проекта "Белый Аист", валидатор многих медийных личностей</p>
+                    </div>
+                </div>
+                
+                <div class="card" onclick="openModal('@chapaevv')">
+                    <div class="card-badge">ТОП</div>
+                    <img src="https://i.ytimg.com/vi/HXsM2RidYEk/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLAEzg68rrZczF1a6i8nbhxDz_SjlA" alt="@chapaevv" class="card-img">
+                    <div class="card-content">
+                        <h3 class="card-title">@chapaevv</h3>
+                        <p class="card-desc">Владелец крупных проектов, основатель "Шапито"</p>
+                    </div>
+                </div>
+                
+                <div class="card" onclick="openModal('@oexec')">
+                    <div class="card-badge">ТОП</div>
+                    <img src="https://i.imgur.com/rF7MCo9.jpg" alt="@oexec" class="card-img">
+                    <div class="card-content">
+                        <h3 class="card-title">@oexec</h3>
+                        <p class="card-desc">Основатель проекта "Позорники Телеграма о км"</p>
+                    </div>
+                </div>
+                
+                <div class="card" onclick="openModal('@spbmaniac')">
+                    <div class="card-badge">ТОП</div>
+                    <img src="https://i.imgur.com/uAYfujR.jpg" alt="@spbmaniac" class="card-img">
+                    <div class="card-content">
+                        <h3 class="card-title">@spbmaniac</h3>
+                        <p class="card-desc">Создатель проекта "Правда о км", известен интервью</p>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
+        </section>
 
-    <div class="section">
-        <h3>Скамеры</h3>
-        <div class="grid">
-            <div class="card" onclick="openModal('scammer1')">
-                <img src="https://i.ytimg.com/vi/HXsM2RidYEk/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLAEzg68rrZczF1a6i8nbhxDz_SjlA" alt="Аватар">
-                <div class="card-content">
-                    <h2>Скамер 1</h2>
+        <section class="section fade-in">
+            <h2 class="section-title">Средний фейм</h2>
+            <div class="grid">
+                <div class="card" onclick="openModal('@sbulemon')">
+                    <img src="https://i.imgur.com/S6Lgvze.jpg" alt="@sbulemon" class="card-img">
+                    <div class="card-content">
+                        <h3 class="card-title">@sbulemon</h3>
+                        <p class="card-desc">OSINT специалист, разработчик @lemon_tool</p>
+                    </div>
                 </div>
             </div>
-            <div class="card" onclick="openModal('scammer2')">
-                <img src="https://i.ytimg.com/vi/HXsM2RidYEk/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLAEzg68rrZczF1a6i8nbhxDz_SjlA" alt="Аватар">
-                <div class="card-content">
-                    <h2>Скамер 2</h2>
+        </section>
+
+        <section class="section fade-in">
+            <h2 class="section-title">Скамеры</h2>
+            <div class="grid">
+                <div class="card" onclick="openModal('scammer1')">
+                    <div class="card-badge">СКАМ</div>
+                    <img src="https://i.ytimg.com/vi/HXsM2RidYEk/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLAEzg68rrZczF1a6i8nbhxDz_SjlA" alt="Скамер 1" class="card-img">
+                    <div class="card-content">
+                        <h3 class="card-title">Скамер 1</h3>
+                        <p class="card-desc">Известен мошенническими схемами в Telegram</p>
+                    </div>
+                </div>
+                
+                <div class="card" onclick="openModal('scammer2')">
+                    <div class="card-badge">СКАМ</div>
+                    <img src="https://i.ytimg.com/vi/HXsM2RidYEk/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLAEzg68rrZczF1a6i8nbhxDz_SjlA" alt="Скамер 2" class="card-img">
+                    <div class="card-content">
+                        <h3 class="card-title">Скамер 2</h3>
+                        <p class="card-desc">Личность с сомнительной репутацией</p>
+                    </div>
                 </div>
             </div>
-        </div>
+        </section>
     </div>
 
-    <!-- Модальное окно -->
-    <div id="modal" class="modal">
+    <div class="modal" id="modal">
         <div class="modal-content">
-            <span class="close" onclick="closeModal()">×</span>
-            <h2 id="modal-username"></h2>
-            <p id="modal-info"></p>
-            <div class="modal-buttons">
-                <a id="modal-channel" href="#" target="_blank">Открыть канал</a>
-                <a id="modal-dm" href="#" target="_blank">Открыть ЛС</a>
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+            <h2 class="modal-title" id="modal-username"></h2>
+            <p class="modal-text" id="modal-info"></p>
+            <div class="modal-actions">
+                <a href="#" class="modal-btn modal-btn-primary" id="modal-channel" target="_blank">
+                    <i class="fab fa-telegram"></i> Открыть канал
+                </a>
+                <a href="#" class="modal-btn modal-btn-secondary" id="modal-dm" target="_blank">
+                    <i class="fas fa-envelope"></i> Написать в ЛС
+                </a>
             </div>
         </div>
     </div>
+
+    <div class="watermark">Медийки Telegram © 2023</div>
 
     <script>
-        function setTheme(theme) {
-            document.body.className = theme;
-        }
-
+        // Данные о персонах
         const personalities = {
             '@usermefi': {
-                info: 'В км очень давно, имеет один из самых крупных проектов в км. Имеет больше всех фейма. Основатель проекта "Белый Аист". Сделал кучу валидаций на медиек. Валидации: Евгений Вавилонов, Шат, Алчность, Тихо и т.д.',
+                info: 'В комьюнити очень давно, имеет один из самых крупных проектов. Обладает наибольшим феймом среди всех. Основатель проекта "Белый Аист". Провел множество валидаций известных медийных личностей, включая Евгения Вавилонова, Шата, Алчность, Тихо и других. Известен своей активной позицией и влиянием в сообществе.',
                 channel: 'https://t.me/usermefi',
                 dm: 'https://t.me/usermefi'
             },
             '@chapaevv': {
-                info: 'Один из самых медийных личностей в км, владелец крупных проектов, а также часто участвовал и участвует во многих потасовках. Основатель крупного проекта "Шапито". Валиднул много медийных личностей. Редко был замешен в скаме на маленькие суммы.',
+                info: 'Один из самых медийных личностей в комьюнити, владелец нескольких крупных проектов. Активный участник различных событий и обсуждений. Основатель популярного проекта "Шапито". Провел валидации многих медийных личностей. В редких случаях был замешан в спорных ситуациях, связанных с небольшими суммами денег.',
                 channel: 'https://t.me/chapaevv',
                 dm: 'https://t.me/chapaevv'
             },
             '@oexec': {
-                info: 'Тихо. В км с 16-17 года ВК. Основатель проекта "Позорники Телеграма о км".',
+                info: 'Известен под ником "Тихо". В комьюнити с 2016-2017 годов (изначально во ВКонтакте). Основатель проекта "Позорники Телеграма о км". Имеет репутацию спокойного и рассудительного участника, несмотря на провокационный характер своего проекта.',
                 channel: 'https://t.me/oexec',
                 dm: 'https://t.me/oexec'
             },
             '@spbmaniac': {
-                info: 'Смертникс. Данная личность появилась в комьюнити ВК 2020. У него есть свой проект "Правда о км". Данная личность стрельнула благодаря интервью у медийных личностей.',
+                info: 'Также известен как "Семеркин". Появился в комьюнити ВКонтакте в 2020 году. Создатель проекта "Правда о км". Приобрел популярность благодаря серии интервью с известными медийными личностями. Известен своей активной гражданской позицией и критическим взглядом на происходящее в сообществе.',
                 channel: 'https://t.me/spbmaniac',
                 dm: 'https://t.me/spbmaniac'
             },
             '@sbulemon': {
-                info: 'Появился в комьюнити в 2022-23 году. Каста OSINT, кодер. Проекты: @lemon_tool.',
+                info: 'Появился в комьюнити в 2022-2023 году. Специализируется на OSINT (разведка на основе открытых источников) и программировании. Автор инструмента @lemon_tool, который получил признание в сообществе. Известен техническим подходом к решению задач.',
                 channel: 'https://t.me/sbulemon',
                 dm: 'https://t.me/sbulemon'
             },
             'scammer1': {
-                info: 'Известен своими схемами в Telegram.',
+                info: 'Известный участник сообщества, замешанный в нескольких мошеннических схемах. Использует различные методы социальной инженерии для обмана пользователей. Был неоднократно разоблачен, но продолжает появляться под новыми аккаунтами. Рекомендуется проявлять осторожность при взаимодействии.',
                 channel: 'https://t.me/scammer1',
                 dm: 'https://t.me/scammer1'
             },
             'scammer2': {
-                info: 'Личность с сомнительной репутацией.',
+                info: 'Личность с крайне сомнительной репутацией. Был замешан в нескольких скандалах, связанных с невыполнением обязательств и финансовыми махинациями. Известен агрессивным поведением при разоблачении. Сообщество рекомендует полностью избегать любых контактов с этим человеком.',
                 channel: 'https://t.me/scammer2',
                 dm: 'https://t.me/scammer2'
             }
         };
 
+        // Установка темы
+        function setTheme(theme) {
+            document.body.className = theme;
+            document.querySelectorAll('.theme-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+        }
+
+        // Открытие модального окна
         function openModal(username) {
             const modal = document.getElementById('modal');
-            const modalUsername = document.getElementById('modal-username');
-            const modalInfo = document.getElementById('modal-info');
-            const modalChannel = document.getElementById('modal-channel');
-            const modalDm = document.getElementById('modal-dm');
-
             const person = personalities[username];
-            modalUsername.textContent = username;
-            modalInfo.textContent = person.info;
-            modalChannel.href = person.channel;
-            modalDm.href = person.dm;
-
-            modal.style.display = 'flex';
+            
+            document.getElementById('modal-username').textContent = username;
+            document.getElementById('modal-info').textContent = person.info;
+            document.getElementById('modal-channel').href = person.channel;
+            document.getElementById('modal-dm').href = person.dm;
+            
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
         }
 
+        // Закрытие модального окна
         function closeModal() {
-            document.getElementById('modal').style.display = 'none';
+            document.getElementById('modal').classList.remove('active');
+            document.body.style.overflow = 'auto';
         }
 
-        window.onclick = function(event) {
-            const modal = document.getElementById('modal');
-            if (event.target === modal) {
-                modal.style.display = 'none';
+        // Закрытие по клику вне окна
+        window.addEventListener('click', function(event) {
+            if (event.target === document.getElementById('modal')) {
+                closeModal();
             }
-        };
+        });
+
+        // Закрытие по ESC
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape' && document.getElementById('modal').classList.contains('active')) {
+                closeModal();
+            }
+        });
     </script>
 </body>
 </html>
